@@ -1,5 +1,9 @@
-use std::fmt::{Display, Formatter};
+use std::fmt::{Debug, Display, Formatter, Write};
 
+mod parser;
+mod display;
+
+#[derive(Clone)]
 pub enum DayanPsi {
     Number(u32),
     Omega,
@@ -7,8 +11,4 @@ pub enum DayanPsi {
 }
 
 
-impl Display for DayanPsi {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        todo!()
-    }
-}
+
