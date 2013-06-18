@@ -7,5 +7,5 @@
 mod errors;
 mod psi;
 
-pub use crate::errors::{Error, Result};
+pub use crate::errors::{DayanError, DayanErrorKind};
 pub use crate::psi::DayanPsi;

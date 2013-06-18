@@ -1,7 +1,13 @@
-#[derive(Debug, Copy, Clone)]
-pub enum Error {
-    UnknownError
+/// The error
+#[derive(Debug, Clone)]
+pub struct DayanError {
+    kind: Box<DayanErrorKind>,
 }
 
-pub type Result<T> = std::result::Result<T, Error>;
-
+/// The
+#[derive(Debug, Clone)]
+pub enum DayanErrorKind {
+    SyntaxError {
+        message: String
+    }
+}

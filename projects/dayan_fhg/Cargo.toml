@@ -12,6 +12,7 @@ exclude = ["package.json", "tests/**"]
 
 [dependencies]
 pex = "0.1.6"
+latexify = "0.0.1"
 
 [dev-dependencies]
 
