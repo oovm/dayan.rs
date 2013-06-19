@@ -6,6 +6,8 @@
 
 mod errors;
 mod psi;
+mod expression;
 
 pub use crate::errors::{DayanError, DayanErrorKind};
 pub use crate::psi::DayanPsi;
+pub use crate::expression::ExpressionTree;
