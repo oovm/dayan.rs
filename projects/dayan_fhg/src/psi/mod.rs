@@ -4,16 +4,19 @@ use crate::{DayanError, ExpressionTree};
 mod parser;
 mod display;
 
+/// A psi expression
 #[derive(Clone)]
 pub enum DayanPsi {
+    /// A positive integer
     Number(u32),
+    /// The first transfinite ordinal `ω`
     Omega,
+    /// `ϕ(a, b, c, ...)`
     Psi(Vec<DayanPsi>),
 }
 
-
-
 impl DayanPsi {
+    /// Convert this psi representation to an expression tree
     pub fn as_expression(&self) -> Result<ExpressionTree, DayanError> {
         let out = match self {
             DayanPsi::Number(v) => {
@@ -25,10 +28,10 @@ impl DayanPsi {
             DayanPsi::Psi(v) => {
                 match v.as_slice() {
                     [] => {
-                        panic!("empty psi")
+                        Err(DayanError::too_less_argument("psi", 0).with_min_argument(1))?
                     }
                     [a] => {
-                        a.check1(0)?
+                        a.linear(0)?
                     }
                     [a, b] => {
                         ExpressionTree::Sub {
@@ -44,53 +47,24 @@ impl DayanPsi {
         };
         Ok(out)
     }
-    fn check1(&self, depth: u32) -> Result<ExpressionTree, DayanError> {
+    fn linear(&self, depth: u32) -> Result<ExpressionTree, DayanError> {
         match self {
             DayanPsi::Number(v) => {
-                println!("Number depth: {}", depth);
-                if depth == 0 {
-                    if *v == 0 {
-                        Ok(ExpressionTree::Letter('ω'))
-                    }
-                    else {
-                        Ok(ExpressionTree::Add {
-                            lhs: Box::new(ExpressionTree::Letter('ω')),
-                            rhs: Box::new(ExpressionTree::Number(*v)),
-                        })
-                    }
-                }
-                else {
-                    if *v == 0 {
-                        Ok(ExpressionTree::Mul {
-                            lhs: Box::new(ExpressionTree::Letter('ω')),
-                            rhs: Box::new(ExpressionTree::Number(depth + 1)),
-                        })
-                    }
-                    else {
-                        Ok(ExpressionTree::Mul {
-                            lhs: Box::new(ExpressionTree::Letter('ω')),
-                            rhs: Box::new(ExpressionTree::Add {
-                                lhs: Box::new(ExpressionTree::Number(depth + 1)),
-                                rhs: Box::new(ExpressionTree::Number(*v)),
-                            }),
-                        })
-                    }
-                }
+                Ok(ExpressionTree::linear('ω', depth + 1, *v))
             }
             DayanPsi::Omega => {
-                println!("Omega depth: {}", depth);
-                Ok(ExpressionTree::Letter('ω'))
+                Ok(ExpressionTree::linear('ω', depth + 2, 0))
             }
             DayanPsi::Psi(v) => {
                 match v.as_slice() {
                     [] => {
-                        panic!("empty psi")
+                        Err(DayanError::too_less_argument("psi", 0).with_min_argument(1).with_max_argument(1))
                     }
                     [a] => {
-                        a.check1(depth + 1)
+                        a.linear(depth + 1)
                     }
                     _ => {
-                        panic!("too many psi")
+                        Err(DayanError::too_much_argument("psi", v.len()).with_min_argument(1).with_max_argument(1))
                     }
                 }
             }
