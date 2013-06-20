@@ -1,4 +1,5 @@
-use dayan::DayanPsi;
+use std::str::FromStr;
+use dayan::{DayanError, DayanPsi};
 
 #[test]
 fn ready() {
@@ -6,45 +7,42 @@ fn ready() {
 }
 
 
-#[test]
-fn test() {
-    let node = DayanPsi::Psi(vec![
-        DayanPsi::Number(0),
-    ]);
-    println!("{}: {}", node, node.as_expression().unwrap());
-    let node = DayanPsi::Psi(vec![
-        DayanPsi::Number(1),
-    ]);
-    println!("{}: {}", node, node.as_expression().unwrap());
-    let node = DayanPsi::Psi(vec![
+fn show(input: &str) -> Result<(), DayanError> {
+    let node = DayanPsi::from_str(input)?;
+    let expr = node.as_expression()?;
+    println!("{}:\n    {}", node, expr);
+    Ok(())
+}
 
-    ]);
-    println!("{}: {:?}", node, node.as_expression());
-    let node = DayanPsi::Psi(vec![
-        DayanPsi::Psi(vec![
-            DayanPsi::Number(0),
-        ]),
-    ]);
-    println!("{}: {}", node, node.as_expression().unwrap());
-    let node = DayanPsi::Psi(vec![
-        DayanPsi::Psi(vec![
-            DayanPsi::Number(1),
-        ]),
-    ]);
-    println!("{}: {}", node, node.as_expression().unwrap());
-    let node = DayanPsi::Psi(vec![
-        DayanPsi::Psi(vec![
-            DayanPsi::Omega,
-        ]),
-    ]);
-    println!("{}: {}", node, node.as_expression().unwrap());
-    println!("{}: {}", node, node.as_expression().unwrap());
-    let node = DayanPsi::Psi(vec![
-        DayanPsi::Psi(vec![
-            DayanPsi::Psi(vec![
-                DayanPsi::Number(1)
-            ]),
-        ]),
-    ]);
-    println!("{}: {}", node, node.as_expression().unwrap());
+#[test]
+fn single_parameter() {
+    show("0").unwrap();
+    show("1").unwrap();
+    show("w").unwrap();
+    show("p(0)").unwrap();
+    show("p(1)").unwrap();
+    show("p(2)").unwrap();
+    show("p(w)").unwrap();
+    show("p(p(0))").unwrap();
+    show("p(p(1))").unwrap();
+}
+
+#[test]
+fn double_parameter() {
+    show("p(1, 0)").unwrap();
+    show("p(1, 1)").unwrap();
+    show("p(1, w)").unwrap();
+    show("p(1, p(1))").unwrap();
+    show("p(1, p(w))").unwrap();
+    show("p(1, p(1, 0))").unwrap();
+    show("p(1, p(1, w))").unwrap();
+    show("p(2, 0)").unwrap();
+    show("p(3, 0)").unwrap();
+}
+
+#[test]
+fn double_parameter2() {
+    show("p(w, 0)").unwrap();
+    show("p(p(0), 0)").unwrap();
+    show("p(p(1), 0)").unwrap();
 }

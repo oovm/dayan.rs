@@ -1,7 +1,21 @@
+use std::ops::Range;
+use pex::StopBecause;
+
 /// The error
 #[derive(Debug, Clone)]
 pub struct DayanError {
     kind: Box<DayanErrorKind>,
+}
+
+impl From<StopBecause> for DayanError {
+    fn from(value: StopBecause) -> Self {
+        Self {
+            kind: Box::new(DayanErrorKind::SyntaxError {
+                message: value.to_string(),
+                range: value.range(),
+            })
+        }
+    }
 }
 
 /// The
@@ -10,7 +24,8 @@ pub enum DayanErrorKind {
     /// The syntax error
     SyntaxError {
         /// The error message
-        message: String
+        message: String,
+        range: Range<usize>,
     },
     /// The error when the argument count is too less
     TooLessArgument {

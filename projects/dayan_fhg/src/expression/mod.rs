@@ -46,13 +46,39 @@ impl ExpressionTree {
     /// `x × k + b`
     pub fn linear(x: char, k: u32, b: u32) -> Self {
         let mut out = ExpressionTree::Letter(x);
-        if k != 1 {
-            out *= ExpressionTree::Number(k);
-        }
-        if b != 0 {
-            out += ExpressionTree::Number(b);
-        }
+        out *= ExpressionTree::Number(k);
+        out += ExpressionTree::Number(b);
         out
+    }
+    /// `x ^ p + rhs`
+    pub fn pow_add(mut base: ExpressionTree, p: u32, rhs: ExpressionTree) -> Self {
+        if p != 1 {
+            base ^= ExpressionTree::Number(p);
+        }
+        base += rhs;
+        base
+    }
+    /// Check if expression is zero
+    pub fn is_zero(&self) -> bool {
+        match self {
+            ExpressionTree::Number(v) => {
+                *v == 0
+            }
+            _ => {
+                false
+            }
+        }
+    }
+    /// Check if expression is one
+    pub fn is_one(&self) -> bool {
+        match self {
+            ExpressionTree::Number(v) => {
+                *v == 1
+            }
+            _ => {
+                false
+            }
+        }
     }
 }
 
