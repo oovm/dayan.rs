@@ -11,8 +11,11 @@ edition = "2021"
 exclude = ["package.json", "tests/**"]
 
 [dependencies]
-pex = { version = "0.2.4", features = ["regex"] }
 latexify = "0.0.1"
+
+[dependencies.pex]
+version = "0.2.4"
+#features = ["regex"]
 
 [dev-dependencies]
 

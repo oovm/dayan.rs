@@ -1,8 +1,9 @@
 use super::*;
+use pex::{
+    helpers::{make_from_str, whitespace},
+    BracketPattern, ParseResult, ParseState, StopBecause,
+};
 use std::str::FromStr;
-use pex::{ BracketPattern, ParseResult, ParseState, StopBecause};
-use pex::helpers::{make_from_str, whitespace};
-
 
 impl FromStr for DayanPsi {
     type Err = StopBecause;
@@ -13,12 +14,9 @@ impl FromStr for DayanPsi {
 }
 
 impl DayanPsi {
+    /// Parse a psi expression
     pub fn parse(state: ParseState) -> ParseResult<Self> {
-        state.begin_choice()
-            .choose(parse_number)
-            .choose(parse_omega)
-            .choose(parse_psi)
-            .end_choice()
+        state.begin_choice().choose(parse_number).choose(parse_omega).choose(parse_psi).end_choice()
     }
 }
 
@@ -28,7 +26,6 @@ fn parse_psi(input: ParseState) -> ParseResult<DayanPsi> {
     let (state, terms) = pair.consume(state.skip(whitespace), whitespace, DayanPsi::parse)?;
     state.finish(DayanPsi::Psi(terms.body))
 }
-
 
 fn parse_word(input: ParseState) -> ParseResult<&str> {
     let (state, str) = input.match_str_if(|c| c.is_alphabetic(), "WORD")?;
@@ -42,14 +39,8 @@ fn parse_number(input: ParseState) -> ParseResult<DayanPsi> {
 
 fn parse_omega(input: ParseState) -> ParseResult<DayanPsi> {
     match input.get_character(0) {
-        Some('ω') => {
-            input.advance('ω'.len_utf8()).finish(DayanPsi::Omega)
-        }
-        Some('w') => {
-            input.advance('w'.len_utf8()).finish(DayanPsi::Omega)
-        }
-        _ => {
-            StopBecause::missing_character('ω', input.start_offset)?
-        }
+        Some('ω') => input.advance('ω'.len_utf8()).finish(DayanPsi::Omega),
+        Some('w') => input.advance('w'.len_utf8()).finish(DayanPsi::Omega),
+        _ => StopBecause::missing_character('ω', input.start_offset)?,
     }
 }
