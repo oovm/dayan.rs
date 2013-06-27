@@ -1,5 +1,5 @@
-use std::ops::Range;
 use pex::StopBecause;
+use std::ops::Range;
 
 /// The error
 #[derive(Debug, Clone)]
@@ -9,12 +9,7 @@ pub struct DayanError {
 
 impl From<StopBecause> for DayanError {
     fn from(value: StopBecause) -> Self {
-        Self {
-            kind: Box::new(DayanErrorKind::SyntaxError {
-                message: value.to_string(),
-                range: value.range(),
-            })
-        }
+        Self { kind: Box::new(DayanErrorKind::SyntaxError { message: value.to_string(), range: value.range() }) }
     }
 }
 
@@ -25,6 +20,7 @@ pub enum DayanErrorKind {
     SyntaxError {
         /// The error message
         message: String,
+        /// The range of the error
         range: Range<usize>,
     },
     /// The error when the argument count is too less
@@ -60,7 +56,7 @@ impl DayanError {
                 count: count as u32,
                 except_min: None,
                 except_max: None,
-            })
+            }),
         }
     }
     /// Report function that the argument is too much
@@ -71,7 +67,7 @@ impl DayanError {
                 count: count as u32,
                 except_min: None,
                 except_max: None,
-            })
+            }),
         }
     }
     /// Fill the minimum argument excepted

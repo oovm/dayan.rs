@@ -23,8 +23,8 @@ impl DayanPsi {
             DayanPsi::Omega => ExpressionTree::Letter('ω'),
             DayanPsi::Psi(v) => match v.as_slice() {
                 [] => Err(DayanError::too_less_argument("psi", 0).with_min_argument(1))?,
-                [a] => a.linear(0)?,
-                [a, b] => a.pow(b, 0)?,
+                [a] => a.unary(0)?,
+                [a, b] => a.binary(b, 0)?,
                 _ => {
                     panic!("too many psi")
                 }
@@ -32,40 +32,50 @@ impl DayanPsi {
         };
         Ok(out)
     }
-    fn linear(&self, depth: u32) -> Result<ExpressionTree, DayanError> {
+    // /// Split this psi expression into the arguments and the head
+    // pub fn split(&self) -> Result<(&[DayanPsi], &DayanPsi), DayanError> {
+    //     match self {
+    //         DayanPsi::Omega | DayanPsi::Number(_) => Ok((&[], self)),
+    //         DayanPsi::Psi(v) => match v.as_slice() {
+    //             [] => Err(DayanError::too_less_argument("ϕ", 0).with_min_argument(1)),
+    //             [a @ .., b] => Ok((a, b)),
+    //         },
+    //     }
+    // }
+    fn unary(&self, depth: u32) -> Result<ExpressionTree, DayanError> {
         match self {
-            DayanPsi::Number(v) => Ok(ExpressionTree::linear('ω', depth + 1, *v)),
-            DayanPsi::Omega => Ok(ExpressionTree::linear('ω', depth + 2, 0)),
+            DayanPsi::Number(v) => Ok(ExpressionTree::mul_add('ω', depth + 1, *v)),
+            DayanPsi::Omega => Ok(ExpressionTree::mul_add('ω', depth + 2, 0)),
             DayanPsi::Psi(v) => match v.as_slice() {
                 [] => Err(DayanError::too_less_argument("ϕ", 0).with_min_argument(1).with_max_argument(1)),
-                [a] => a.linear(depth + 1),
+                [a] => a.unary(depth + 1),
                 _ => Err(DayanError::too_much_argument("ϕ", v.len()).with_min_argument(1).with_max_argument(1)),
             },
         }
     }
-    fn pow(&self, rhs: &Self, depth: u32) -> Result<ExpressionTree, DayanError> {
+    fn binary(&self, rhs: &Self, depth: u32) -> Result<ExpressionTree, DayanError> {
         match self {
             // w ^ (v + 1)
             DayanPsi::Number(v) => {
                 // FIXME: ϕ(1, ϕ(1, ϕ(0))): w^{2} + w^{2} + ω
-                let mut base = rhs.as_expression()? + *v;
-                for i in 0..=depth {
-                    base = ExpressionTree::Letter('ω') ^ base;
-                }
-                Ok(base)
+                Ok(ExpressionTree::pow_add('ω', *v + 1, rhs.as_expression()?))
             }
             DayanPsi::Omega => {
                 let mut base = ExpressionTree::Letter('ω');
-                for i in 0..=depth {
-                    base ^= ExpressionTree::Letter('ω');
-                }
+                base = ExpressionTree::Letter('ω') ^ ExpressionTree::Letter('ω');
                 Ok(base + rhs.as_expression()?)
             }
             DayanPsi::Psi(v) => match v.as_slice() {
-                [] => Err(DayanError::too_less_argument("psi", 0).with_min_argument(1).with_max_argument(1)),
-                [a] => a.pow(&Self::Number(0), depth + 1),
-                [a, b] => a.pow(b, depth + 1),
-                _ => Err(DayanError::too_much_argument("psi", v.len()).with_min_argument(1).with_max_argument(1)),
+                [] => Err(DayanError::too_less_argument("psi", 0).with_min_argument(1).with_max_argument(2)),
+                [a] => {
+                    let base = ExpressionTree::Letter('ω') ^ a.unary(depth)?;
+                    Ok(base + rhs.as_expression()?)
+                }
+                [a, b] => {
+                    let base = a.binary(b, depth + 1)? ^ a.unary(depth)?;
+                    Ok(base + rhs.as_expression()?)
+                }
+                _ => Err(DayanError::too_much_argument("psi", v.len()).with_min_argument(1).with_max_argument(2)),
             },
         }
     }

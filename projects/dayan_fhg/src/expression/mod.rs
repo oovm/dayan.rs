@@ -31,7 +31,7 @@ pub enum ExpressionTree {
     /// `head ^ rest`
     Sup {
         /// The head of the superscript
-        head: Box<ExpressionTree>,
+        base: Box<ExpressionTree>,
         /// The rest of the superscript
         rest: Box<ExpressionTree>,
     },
@@ -45,9 +45,25 @@ pub enum ExpressionTree {
 }
 
 impl ExpressionTree {
-    /// `x × k + b`
-    pub fn linear(x: char, k: u32, b: u32) -> Self {
-        ExpressionTree::Letter(x) * k + b
+    /// `x × k + a`
+    #[inline]
+    pub fn mul_add<B, P, A>(base: B, times: P, a: A) -> Self
+    where
+        B: Into<ExpressionTree>,
+        P: Into<ExpressionTree>,
+        A: Into<ExpressionTree>,
+    {
+        base.into() * times.into() + a.into()
+    }
+    /// `x ^ k + a`
+    #[inline]
+    pub fn pow_add<B, P, A>(base: B, power: P, a: A) -> Self
+    where
+        B: Into<ExpressionTree>,
+        P: Into<ExpressionTree>,
+        A: Into<ExpressionTree>,
+    {
+        (base.into() ^ power.into()) + a.into()
     }
     /// Check if expression is zero
     pub fn is_zero(&self) -> bool {
@@ -60,6 +76,13 @@ impl ExpressionTree {
     pub fn is_one(&self) -> bool {
         match self {
             ExpressionTree::Number(v) => *v == 1,
+            _ => false,
+        }
+    }
+    /// Check if expression is a digit
+    pub fn is_digit(&self) -> bool {
+        match self {
+            ExpressionTree::Number(v) if *v < 10 => true,
             _ => false,
         }
     }

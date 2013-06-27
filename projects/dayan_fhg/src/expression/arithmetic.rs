@@ -1,7 +1,19 @@
 use super::*;
 
+impl From<char> for ExpressionTree {
+    fn from(value: char) -> Self {
+        ExpressionTree::Letter(value)
+    }
+}
+
+impl From<u32> for ExpressionTree {
+    fn from(value: u32) -> Self {
+        ExpressionTree::Number(value)
+    }
+}
+
 impl Add for ExpressionTree {
-    type Output = ExpressionTree;
+    type Output = Self;
 
     fn add(self, rhs: ExpressionTree) -> Self::Output {
         if rhs.is_zero() {
@@ -13,42 +25,26 @@ impl Add for ExpressionTree {
     }
 }
 
-impl Add<u32> for ExpressionTree {
+impl Mul for ExpressionTree {
     type Output = ExpressionTree;
 
-    fn add(self, rhs: u32) -> Self::Output {
-        if rhs == 0 {
-            return self;
-        }
-        else {
-            ExpressionTree::Add { lhs: Box::new(self), rhs: Box::new(ExpressionTree::Number(rhs)) }
-        }
-    }
-}
-
-impl Mul<u32> for ExpressionTree {
-    type Output = ExpressionTree;
-
-    fn mul(self, rhs: u32) -> Self::Output {
+    fn mul(self, rhs: ExpressionTree) -> Self::Output {
         match rhs {
-            0 => ExpressionTree::Number(0),
-            1 => self,
-            _ => ExpressionTree::Mul { lhs: Box::new(self), rhs: Box::new(ExpressionTree::Number(rhs)) },
+            _ if rhs.is_zero() => ExpressionTree::Number(0),
+            _ if rhs.is_one() => self,
+            _ => ExpressionTree::Mul { lhs: Box::new(self), rhs: Box::new(rhs) },
         }
-    }
-}
-
-impl BitXorAssign for ExpressionTree {
-    fn bitxor_assign(&mut self, rhs: Self) {
-        *self = ExpressionTree::Sup { head: Box::new(replace(self, ExpressionTree::Number(0))), rest: Box::new(rhs) }
     }
 }
 
 impl BitXor for ExpressionTree {
     type Output = Self;
 
-    fn bitxor(mut self, rhs: Self) -> Self::Output {
-        self ^= rhs;
-        self
+    fn bitxor(self, rhs: Self) -> Self::Output {
+        match rhs {
+            _ if rhs.is_zero() => ExpressionTree::Number(1),
+            _ if rhs.is_one() => self,
+            _ => Self::Sup { base: Box::new(self), rest: Box::new(rhs) },
+        }
     }
 }

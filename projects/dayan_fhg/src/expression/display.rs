@@ -15,18 +15,27 @@ impl Display for ExpressionTree {
                 f.write_str(" × ")?;
                 Display::fmt(rhs, f)
             }
-            ExpressionTree::Sup { head, rest } => {
+            ExpressionTree::Sup { base: head, rest } => {
                 Display::fmt(head, f)?;
-                f.write_str("^{")?;
-                Display::fmt(rest, f)?;
-                f.write_char('}')
+                f.write_char('^')?;
+                write_bracketed(f, rest)
             }
             ExpressionTree::Sub { head, rest } => {
                 Display::fmt(head, f)?;
-                f.write_str("_{")?;
-                Display::fmt(rest, f)?;
-                f.write_char('}')
+                f.write_char('_')?;
+                write_bracketed(f, rest)
             }
         }
+    }
+}
+
+fn write_bracketed(f: &mut Formatter<'_>, rest: &ExpressionTree) -> std::fmt::Result {
+    if rest.is_digit() {
+        Display::fmt(rest, f)
+    }
+    else {
+        f.write_str("{")?;
+        Display::fmt(rest, f)?;
+        f.write_char('}')
     }
 }
