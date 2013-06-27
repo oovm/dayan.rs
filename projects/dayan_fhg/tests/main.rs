@@ -13,7 +13,9 @@ fn show(input: &str) -> Result<(), DayanError> {
         }
         let node = DayanPsi::from_str(line)?;
         let expr = node.as_expression()?;
-        println!("{}:\n    {}", node, expr);
+        println!("{}:", node);
+        // println!("  {:?}", node);
+        println!("  {}", expr);
     }
     Ok(())
 }
@@ -58,7 +60,20 @@ p(p(p(w)), 0)
 p(p(1, 0), 0)
 p(p(1, w), 0)
 p(p(w, w), w)
-
-        "#, // p(p(p(1, 0), 0), w)
+p(p(p(1, 0), 0), w)
+        "#,
+    )
+}
+#[test]
+fn tuble_parameter() -> Result<(), DayanError> {
+    show(
+        r#"
+p(0, 0, 0)
+p(1, 0, 0)
+p(1, 0, 1)
+p(1, 0, 2)
+p(1, 0, w)
+p(1, 1, 0)
+        "#,
     )
 }

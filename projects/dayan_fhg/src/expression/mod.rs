@@ -3,8 +3,7 @@ mod display;
 
 use std::{
     fmt::{Display, Formatter, Write},
-    mem::replace,
-    ops::{Add, BitXor, BitXorAssign, Mul},
+    ops::{Add, BitXor, Mul},
 };
 
 /// A tree representing an expression
@@ -65,6 +64,15 @@ impl ExpressionTree {
     {
         (base.into() ^ power.into()) + a.into()
     }
+    #[inline]
+    pub fn sub_add<B, P, A>(base: B, power: P, a: A) -> Self
+    where
+        B: Into<ExpressionTree>,
+        P: Into<ExpressionTree>,
+        A: Into<ExpressionTree>,
+    {
+        ExpressionTree::Sub { head: Box::new(base.into()), rest: Box::new(power.into()) } + a.into()
+    }
     /// Check if expression is zero
     pub fn is_zero(&self) -> bool {
         match self {
@@ -79,10 +87,10 @@ impl ExpressionTree {
             _ => false,
         }
     }
-    /// Check if expression is a digit
-    pub fn is_digit(&self) -> bool {
+    fn is_digit(&self) -> bool {
         match self {
             ExpressionTree::Number(v) if *v < 10 => true,
+            ExpressionTree::Letter(_) => true,
             _ => false,
         }
     }
