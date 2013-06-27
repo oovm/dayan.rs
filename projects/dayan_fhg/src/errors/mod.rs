@@ -1,3 +1,5 @@
+mod for_std;
+
 use pex::StopBecause;
 use std::ops::Range;
 

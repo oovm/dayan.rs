@@ -11,7 +11,7 @@ pub enum DayanPsi {
     Number(u32),
     /// The first transfinite ordinal `ω`
     Omega,
-    /// `ϕ(a, b, c, ...)`
+    /// `φ(a, b, c, ...)`
     Psi(Vec<DayanPsi>),
 }
 
@@ -38,19 +38,19 @@ impl DayanPsi {
             DayanPsi::Number(v) => Ok(ExpressionTree::mul_add('ω', depth + 1, *v)),
             DayanPsi::Omega => Ok(ExpressionTree::mul_add('ω', depth + 2, 0)),
             DayanPsi::Psi(v) => match v.as_slice() {
-                [] => Err(DayanError::too_less_argument("ϕ", 0).with_min_argument(1).with_max_argument(1)),
+                [] => Err(DayanError::too_less_argument("φ", 0).with_min_argument(1).with_max_argument(1)),
                 [a] => a.unary(depth + 1),
-                _ => Err(DayanError::too_much_argument("ϕ", v.len()).with_min_argument(1).with_max_argument(1)),
+                _ => Err(DayanError::too_much_argument("φ", v.len()).with_min_argument(1).with_max_argument(1)),
             },
         }
     }
     fn binary(&self, rhs: &Self) -> Result<ExpressionTree, DayanError> {
         match self {
-            // FIXME: ϕ(1, ϕ(1, ϕ(0))): w^{2} + w^{2} + ω
+            // FIXME: φ(1, φ(1, φ(0))): w^{2} + w^{2} + ω
             DayanPsi::Number(v) => Ok(ExpressionTree::pow_add('ω', *v + 1, rhs.as_expression()?)),
             DayanPsi::Omega => Ok(ExpressionTree::pow_add('ω', 'ω', rhs.as_expression()?)),
             DayanPsi::Psi(v) => match v.as_slice() {
-                [] => Err(DayanError::too_less_argument("ϕ", 0).with_min_argument(1).with_max_argument(2)),
+                [] => Err(DayanError::too_less_argument("φ", 0).with_min_argument(1).with_max_argument(2)),
                 [a] => {
                     let base = ExpressionTree::Letter('ω') ^ a.unary(0)?;
                     Ok(base + rhs.as_expression()?)
@@ -59,7 +59,7 @@ impl DayanPsi {
                     let base = ExpressionTree::Letter('ω') ^ a.binary(b)?;
                     Ok(base + rhs.as_expression()?)
                 }
-                _ => Err(DayanError::too_much_argument("ϕ", v.len()).with_min_argument(1).with_max_argument(2)),
+                _ => Err(DayanError::too_much_argument("φ", v.len()).with_min_argument(1).with_max_argument(2)),
             },
         }
     }
@@ -84,7 +84,7 @@ impl DayanPsi {
                     let base = ExpressionTree::Letter('ω') ^ a.ternary(b, c)?;
                     Ok(base + mid.as_expression()? + rhs.as_expression()?)
                 }
-                _ => Err(DayanError::too_much_argument("ϕ", v.len()).with_min_argument(1).with_max_argument(3)),
+                _ => Err(DayanError::too_much_argument("φ", v.len()).with_min_argument(1).with_max_argument(3)),
             },
         }
     }

@@ -64,6 +64,7 @@ impl ExpressionTree {
     {
         (base.into() ^ power.into()) + a.into()
     }
+    /// `x _ k + a`
     #[inline]
     pub fn sub_add<B, P, A>(base: B, power: P, a: A) -> Self
     where

@@ -1,12 +1,11 @@
 use dayan::{DayanError, DayanPsi};
-use std::str::FromStr;
-
+use std::{fs::File, io::Write, path::Path, str::FromStr};
 #[test]
 fn ready() {
     println!("it works!")
 }
 
-fn show(input: &str) -> Result<(), DayanError> {
+pub fn show(input: &str) -> Result<(), DayanError> {
     for line in input.lines() {
         if line.trim().is_empty() {
             continue;
@@ -20,60 +19,23 @@ fn show(input: &str) -> Result<(), DayanError> {
     Ok(())
 }
 
-#[test]
-fn single_parameter() -> Result<(), DayanError> {
-    show(
-        r#"
-0
-1
-w
-p(1)
-p(2)
-p(w)
-p(p(1))
-p(p(p(1)))
-    "#,
-    )
+pub fn markdown(input: &str, file: &mut File) -> Result<(), DayanError> {
+    writeln!(file, "| Node | Psi | Expression |")?;
+    writeln!(file, "| ---- | --- | ---------- |")?;
+    for line in input.lines() {
+        if line.trim().is_empty() {
+            continue;
+        }
+        let node = DayanPsi::from_str(line)?;
+        let expr = node.as_expression()?;
+        writeln!(file, "| ${:?}$ | ${}$ | ${}$ |", node, node, expr)?;
+    }
+    Ok(())
 }
 
 #[test]
-fn double_parameter() -> Result<(), DayanError> {
-    show(
-        r#"
-p(0, 0)
-p(1, 0)
-p(1, 1)
-p(1, w)
-p(1, p(1))
-p(1, p(w))
-p(1, p(1, 0))
-p(1, p(1, w))
-p(2, 0)
-p(3, 0)
-p(3, 1)
-p(3, w)
-p(w, 0)
-p(p(1), 0)
-p(p(w), 0)
-p(p(p(1)), 0)
-p(p(p(w)), 0)
-p(p(1, 0), 0)
-p(p(1, w), 0)
-p(p(w, w), w)
-p(p(p(1, 0), 0), w)
-        "#,
-    )
-}
-#[test]
-fn tuble_parameter() -> Result<(), DayanError> {
-    show(
-        r#"
-p(0, 0, 0)
-p(1, 0, 0)
-p(1, 0, 1)
-p(1, 0, 2)
-p(1, 0, w)
-p(1, 1, 0)
-        "#,
-    )
+fn export_psi() -> Result<(), DayanError> {
+    let here = Path::new(env!("CARGO_MANIFEST_DIR"));
+    let mut file = File::create(here.join("tests").join("psi.md"))?;
+    markdown(include_str!("psi.txt"), &mut file)
 }
