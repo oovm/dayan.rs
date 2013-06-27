@@ -4,10 +4,13 @@
 #![doc(html_logo_url = "https://raw.githubusercontent.com/oovm/shape-rs/dev/projects/images/Trapezohedron.svg")]
 #![doc(html_favicon_url = "https://raw.githubusercontent.com/oovm/shape-rs/dev/projects/images/Trapezohedron.svg")]
 
+mod beta;
 mod errors;
-mod psi;
 mod expression;
+mod psi;
 
-pub use crate::errors::{DayanError, DayanErrorKind};
-pub use crate::psi::DayanPsi;
-pub use crate::expression::ExpressionTree;
+pub use crate::{
+    errors::{DayanError, DayanErrorKind},
+    expression::ExpressionTree,
+    psi::DayanPsi,
+};

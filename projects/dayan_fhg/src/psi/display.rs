@@ -25,7 +25,7 @@ impl Display for DayanPsi {
             DayanPsi::Number(v) => f.write_fmt(format_args!("{}", v)),
             DayanPsi::Omega => f.write_char('ω'),
             DayanPsi::Psi(v) => {
-                f.write_str("ϕ(")?;
+                f.write_str("φ(")?;
                 for (index, node) in v.iter().enumerate() {
                     if index != 0 {
                         f.write_str(", ")?;
