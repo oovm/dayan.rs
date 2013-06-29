@@ -35,7 +35,10 @@ pub fn markdown(input: &str, file: &mut File) -> Result<(), DayanError> {
 
 #[test]
 fn export_beta() -> Result<(), DayanError> {
-    let beta = DayanBeta::Beta(2, vec![DayanBeta::Number(1)]);
+    let beta = DayanBeta::Beta(2, vec![DayanBeta::Number(1), DayanBeta::Number(1)]);
+    println!("{}", beta.as_expression()?);
+    let beta =
+        DayanBeta::Beta(2, vec![DayanBeta::Beta(2, vec![DayanBeta::Number(1), DayanBeta::Number(1)]), DayanBeta::Number(1)]);
     println!("{}", beta.as_expression()?);
     Ok(())
 }
