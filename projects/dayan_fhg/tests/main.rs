@@ -1,4 +1,4 @@
-use dayan::{DayanError, DayanPsi};
+use dayan::{DayanBeta, DayanError, DayanPsi};
 use std::{fs::File, io::Write, path::Path, str::FromStr};
 #[test]
 fn ready() {
@@ -30,6 +30,13 @@ pub fn markdown(input: &str, file: &mut File) -> Result<(), DayanError> {
         let expr = node.as_expression()?;
         writeln!(file, "| ${:?}$ | ${}$ | ${}$ |", node, node, expr)?;
     }
+    Ok(())
+}
+
+#[test]
+fn export_beta() -> Result<(), DayanError> {
+    let beta = DayanBeta::Beta(2, vec![DayanBeta::Number(1)]);
+    println!("{}", beta.as_expression()?);
     Ok(())
 }
 

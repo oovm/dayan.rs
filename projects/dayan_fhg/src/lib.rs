@@ -10,6 +10,7 @@ mod expression;
 mod psi;
 
 pub use crate::{
+    beta::DayanBeta,
     errors::{DayanError, DayanErrorKind},
     expression::ExpressionTree,
     psi::DayanPsi,
