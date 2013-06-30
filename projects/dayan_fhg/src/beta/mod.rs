@@ -48,16 +48,12 @@ impl DayanBeta {
         Ok(base)
     }
     fn cast_mul(&self, count: BTreeMap<&DayanBeta, u32>) -> Result<ExpressionTree, DayanError> {
-        let mut terms: Option<ExpressionTree> = None;
+        let mut e = ExpressionTree::Number(1);
         for (node, count) in count {
-            let term = node.as_rank2()?;
-            let pow = term ^ ExpressionTree::Number(count);
-            terms = match terms {
-                Some(terms) => Some(terms * pow),
-                None => Some(pow),
-            }
+            let term = node.as_rank2()? * ExpressionTree::Number(count);
+            e = e * term;
         }
-        Ok(terms.unwrap_or(ExpressionTree::Number(1)))
+        Ok(ExpressionTree::Letter('w') ^ e)
     }
     fn as_rank2(&self) -> Result<ExpressionTree, DayanError> {
         match self {
