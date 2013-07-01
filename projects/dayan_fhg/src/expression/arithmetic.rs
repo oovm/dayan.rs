@@ -20,7 +20,7 @@ impl Add for ExpressionTree {
             return self;
         }
         else {
-            ExpressionTree::Add { lhs: Box::new(self), rhs: Box::new(rhs) }
+            ExpressionTree::Sum { lhs: Box::new(self), rhs: Box::new(rhs) }
         }
     }
 }
@@ -29,11 +29,18 @@ impl Mul for ExpressionTree {
     type Output = ExpressionTree;
 
     fn mul(self, rhs: ExpressionTree) -> Self::Output {
-        match rhs {
-            _ if rhs.is_zero() => ExpressionTree::Number(0),
-            _ if rhs.is_one() => self,
-            _ => ExpressionTree::Mul { lhs: Box::new(self), rhs: Box::new(rhs) },
-        }
+        let terms = match self {
+            ExpressionTree::Product { mut terms } => {
+                terms.push(rhs);
+                terms
+            }
+            _ => {
+                vec![self, rhs]
+
+            }
+        };
+        ExpressionTree::Product { terms}
+
     }
 }
 

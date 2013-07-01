@@ -14,18 +14,16 @@ pub enum ExpressionTree {
     /// A character letter
     Letter(char),
     /// `lhs + rhs`
-    Add {
+    Sum {
         /// The left hand side of the addition
         lhs: Box<ExpressionTree>,
         /// The right hand side of the addition
         rhs: Box<ExpressionTree>,
     },
     /// `lhs × rhs`
-    Mul {
+    Product {
         /// The left hand side of the multiplication
-        lhs: Box<ExpressionTree>,
-        /// The right hand side of the multiplication
-        rhs: Box<ExpressionTree>,
+        terms: Vec<ExpressionTree>,
     },
     /// `head ^ rest`
     Sup {
