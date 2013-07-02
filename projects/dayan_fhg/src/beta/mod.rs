@@ -1,9 +1,12 @@
 use crate::{DayanError, ExpressionTree};
 use std::collections::BTreeMap;
 
+/// A beta expression
 #[derive(Debug, Eq, PartialEq, Ord, PartialOrd)]
 pub enum DayanBeta {
+    /// A positive integer
     Number(u32),
+    /// A beta expression
     Beta(u32, Vec<DayanBeta>),
 }
 
@@ -15,10 +18,7 @@ impl DayanBeta {
                 let group = same_group(p);
                 match *rank {
                     0 => panic!("DayanBeta::Beta(0, _) is not a valid expression"),
-                    1 => match p.as_slice() {
-                        [] => Ok(ExpressionTree::Number(0)),
-                        [head, rest @ ..] => head.cast_add(rest),
-                    },
+                    1 => self.cast_add(group),
                     2 => self.cast_mul(group),
                     _ => match p.as_slice() {
                         [head, rest @ ..] => head.cast_pow(rest),
@@ -34,25 +34,35 @@ impl DayanBeta {
             _ => false,
         }
     }
+    /// Check if expression is one
     pub fn is_number(&self) -> bool {
         match self {
             DayanBeta::Number(_) => true,
             _ => false,
         }
     }
-    fn cast_add(&self, rest: &[Self]) -> Result<ExpressionTree, DayanError> {
-        let mut base = self.as_expression()?;
-        for node in rest {
-            base = base + node.as_expression()?;
+    fn cast_add(&self, count: BTreeMap<&DayanBeta, u32>) -> Result<ExpressionTree, DayanError> {
+        let mut terms = vec![];
+        for (node, count) in count {
+            terms.push(node.as_rank1()? * ExpressionTree::Number(count))
         }
-        Ok(base)
+       Ok(ExpressionTree::Sum { add: terms }.as_simplify())
+    }
+    fn as_rank1(&self) -> Result<ExpressionTree, DayanError> {
+        match self {
+            DayanBeta::Number(1) => Ok(ExpressionTree::Number(1)),
+            DayanBeta::Number(_) => {
+                panic!()
+            }
+            DayanBeta::Beta(_, _) => self.as_expression(),
+        }
     }
     fn cast_mul(&self, count: BTreeMap<&DayanBeta, u32>) -> Result<ExpressionTree, DayanError> {
         let mut terms = vec![];
         for (node, count) in count {
             terms.push(node.as_rank2()? * ExpressionTree::Number(count))
         }
-        Ok(ExpressionTree::Letter('w') ^ ExpressionTree::Product { terms })
+        Ok((ExpressionTree::Letter('w') ^ ExpressionTree::Sum { add: terms }).as_simplify())
     }
     fn as_rank2(&self) -> Result<ExpressionTree, DayanError> {
         match self {

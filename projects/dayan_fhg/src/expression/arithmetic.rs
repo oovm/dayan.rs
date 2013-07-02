@@ -16,21 +16,8 @@ impl Add for ExpressionTree {
     type Output = Self;
 
     fn add(self, rhs: ExpressionTree) -> Self::Output {
-        if rhs.is_zero() {
-            return self;
-        }
-        else {
-            ExpressionTree::Sum { lhs: Box::new(self), rhs: Box::new(rhs) }
-        }
-    }
-}
-
-impl Mul for ExpressionTree {
-    type Output = ExpressionTree;
-
-    fn mul(self, rhs: ExpressionTree) -> Self::Output {
         let terms = match self {
-            ExpressionTree::Product { mut terms } => {
+            ExpressionTree::Sum { add: mut terms } => {
                 terms.push(rhs);
                 terms
             }
@@ -39,7 +26,25 @@ impl Mul for ExpressionTree {
 
             }
         };
-        ExpressionTree::Product { terms}
+        ExpressionTree::Sum { add: terms}
+    }
+}
+
+impl Mul for ExpressionTree {
+    type Output = ExpressionTree;
+
+    fn mul(self, rhs: ExpressionTree) -> Self::Output {
+        let terms = match self {
+            ExpressionTree::Product { mul: mut terms } => {
+                terms.push(rhs);
+                terms
+            }
+            _ => {
+                vec![self, rhs]
+
+            }
+        };
+        ExpressionTree::Product { mul: terms }
 
     }
 }

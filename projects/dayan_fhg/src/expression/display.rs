@@ -5,13 +5,16 @@ impl Display for ExpressionTree {
         match self {
             ExpressionTree::Number(v) => f.write_fmt(format_args!("{}", v))?,
             ExpressionTree::Letter(v) => f.write_fmt(format_args!("{}", v))?,
-            ExpressionTree::Sum { lhs, rhs } => {
-                Display::fmt(lhs, f)?;
-                f.write_str(" + ")?;
-                Display::fmt(rhs, f)?
+            ExpressionTree::Sum { add } => {
+                for (i, term) in add.iter().enumerate() {
+                    if i != 0 {
+                        f.write_str(" + ")?;
+                    }
+                    Display::fmt(term, f)?;
+                }
             }
-            ExpressionTree::Product { terms } => {
-                for (i, term) in terms.iter().enumerate() {
+            ExpressionTree::Product { mul } => {
+                for (i, term) in mul.iter().enumerate() {
                     if i != 0 {
                         f.write_str(" × ")?;
                     }

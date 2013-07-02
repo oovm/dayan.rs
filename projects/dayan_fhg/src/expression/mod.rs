@@ -7,7 +7,7 @@ use std::{
 };
 
 /// A tree representing an expression
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub enum ExpressionTree {
     /// A positive integer
     Number(u32),
@@ -16,14 +16,12 @@ pub enum ExpressionTree {
     /// `lhs + rhs`
     Sum {
         /// The left hand side of the addition
-        lhs: Box<ExpressionTree>,
-        /// The right hand side of the addition
-        rhs: Box<ExpressionTree>,
+        add: Vec<ExpressionTree>,
     },
     /// `lhs × rhs`
     Product {
         /// The left hand side of the multiplication
-        terms: Vec<ExpressionTree>,
+        mul: Vec<ExpressionTree>,
     },
     /// `head ^ rest`
     Sup {
@@ -91,6 +89,57 @@ impl ExpressionTree {
             ExpressionTree::Number(v) if *v < 10 => true,
             ExpressionTree::Letter(_) => true,
             _ => false,
+        }
+    }
+    /// Convert to a string
+    pub fn as_simplify(&self) -> ExpressionTree {
+        match self {
+            ExpressionTree::Number(v) => ExpressionTree::Number(*v),
+            ExpressionTree::Letter(v) => ExpressionTree::Letter(*v),
+            ExpressionTree::Sum { add } => {
+                let mut new = Vec::with_capacity(add.len());
+                for old in add {
+                    let term = old.as_simplify();
+                    if term.is_zero() {
+                        continue;
+                    }
+                    new.push(term);
+                }
+                if new.is_empty() {
+                    ExpressionTree::Number(0)
+                } else if new.len() == 1 {
+                    new.remove(0)
+                } else {
+                    ExpressionTree::Sum { add: new }
+                }
+            }
+            ExpressionTree::Product { mul } => {
+                let mut new = Vec::with_capacity(mul.len());
+                for old in mul {
+                    let term = old.as_simplify();
+                    if term.is_zero() {
+                        return ExpressionTree::Number(0);
+                    }
+                    if term.is_one() {
+                        continue;
+                    }
+                    new.push(term);
+                }
+                if new.is_empty() {
+                    ExpressionTree::Number(1)
+                } else if new.len() == 1 {
+                    new.remove(0)
+                } else {
+                    ExpressionTree::Product { mul: new }
+                }
+
+            }
+            ExpressionTree::Sup { base, rest } => {
+                ExpressionTree::Sup { base: Box::new(base.as_simplify()), rest: Box::new(rest.as_simplify()) }
+            }
+            ExpressionTree::Sub { head, rest } => {
+                ExpressionTree::Sub { head: Box::new(head.as_simplify()), rest: Box::new(rest.as_simplify()) }
+            }
         }
     }
 }
