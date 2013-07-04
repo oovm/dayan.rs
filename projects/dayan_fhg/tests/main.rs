@@ -41,14 +41,23 @@ fn export_beta1() -> Result<(), DayanError> {
     println!("{}", beta.as_expression()?);
     let beta = DayanBeta::Beta(1, vec![DayanBeta::Number(1), DayanBeta::Number(1)]);
     println!("{}", beta.as_expression()?);
+    let beta = DayanBeta::Beta(1, vec![DayanBeta::Beta(1, vec![DayanBeta::Number(1)]), DayanBeta::Number(1)]);
+    println!("{}", beta.as_expression()?);
+    let beta = DayanBeta::Beta(1, vec![DayanBeta::Beta(2, vec![DayanBeta::Number(1)]), DayanBeta::Number(1)]);
+    println!("{}", beta.as_expression()?);
     Ok(())
 }
 #[test]
 fn export_beta2() -> Result<(), DayanError> {
-    let beta = DayanBeta::Beta(1, vec![DayanBeta::Number(1), DayanBeta::Number(1)]);
+    let beta = DayanBeta::Beta(2, vec![]);
     println!("{}", beta.as_expression()?);
-    let beta =
-        DayanBeta::Beta(2, vec![DayanBeta::Beta(2, vec![DayanBeta::Number(1), DayanBeta::Number(1)]), DayanBeta::Number(1)]);
+    let beta = DayanBeta::Beta(2, vec![DayanBeta::Number(1)]);
+    println!("{}", beta.as_expression()?);
+    let beta = DayanBeta::Beta(2, vec![DayanBeta::Number(1), DayanBeta::Number(1)]);
+    println!("{}", beta.as_expression()?);
+    let beta = DayanBeta::Beta(2, vec![DayanBeta::Number(1), DayanBeta::Number(2)]);
+    println!("{}", beta.as_expression()?);
+    let beta = DayanBeta::Beta(2, vec![DayanBeta::Number(2), DayanBeta::Number(2)]);
     println!("{}", beta.as_expression()?);
     Ok(())
 }
