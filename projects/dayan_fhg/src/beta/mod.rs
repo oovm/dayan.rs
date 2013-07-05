@@ -2,6 +2,7 @@ use std::cmp::Ordering;
 use crate::{DayanError, ExpressionTree};
 use std::collections::BTreeMap;
 use std::ops::{Add, Mul};
+use std::vec;
 use num_traits::{One, Zero};
 
 mod arithmetic;
@@ -84,10 +85,7 @@ impl DayanBeta {
                 Ok(ExpressionTree::Letter('ω') ^ ExpressionTree::Number(count))
             },
             DayanBeta::Number(2) => {
-                Ok(ExpressionTree::Sub {
-                    head: Box::new(ExpressionTree::Letter('ε')),
-                    rest: Box::new(ExpressionTree::Number(count)),
-                })
+                Ok(ExpressionTree::subscript('ε', count))
             },
             DayanBeta::Number(_) => {
                 panic!()
@@ -101,20 +99,17 @@ impl DayanBeta {
     fn cast_pow(&self, count: BTreeMap<&DayanBeta, u32>) -> Result<ExpressionTree, DayanError> {
         let mut terms = vec![];
         for (node, count) in count.into_iter().rev()  {
-            terms.push(node.as_rank3(count)?)
+            terms.push(node.as_rank3(count, 1)?)
         }
-        Ok(ExpressionTree::Product { mul: terms })
+        Ok(ExpressionTree::subscript('φ', ExpressionTree::Product { mul: terms }))
     }
-    fn as_rank3(&self, count: u32) -> Result<ExpressionTree, DayanError> {
+    fn as_rank3(&self, count: u32, depth: u32) -> Result<ExpressionTree, DayanError> {
         match self {
             DayanBeta::Number(1) => {
-                Ok(ExpressionTree::Letter('ω') ^ ExpressionTree::Number(count))
+                todo!()
             },
             DayanBeta::Number(2) => {
-                Ok(ExpressionTree::Sub {
-                    head: Box::new(ExpressionTree::Letter('ε')),
-                    rest: Box::new(ExpressionTree::Number(count)),
-                })
+                todo!()
             },
             DayanBeta::Number(_) => {
                 panic!()

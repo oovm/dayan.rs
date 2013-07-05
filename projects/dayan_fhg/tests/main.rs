@@ -63,6 +63,20 @@ fn export_beta2() -> Result<(), DayanError> {
 }
 
 #[test]
+fn export_beta3() -> Result<(), DayanError> {
+    let beta = DayanBeta::Beta(3, vec![]);
+    println!("{}", beta.as_expression()?);
+    let beta = DayanBeta::Beta(3, vec![DayanBeta::Number(1)]);
+    println!("{}", beta.as_expression()?);
+    let beta = DayanBeta::Beta(3, vec![DayanBeta::Number(1), DayanBeta::Number(1)]);
+    println!("{}", beta.as_expression()?);
+    let beta = DayanBeta::Beta(3, vec![DayanBeta::Number(1), DayanBeta::Number(2)]);
+    println!("{}", beta.as_expression()?);
+    let beta = DayanBeta::Beta(3, vec![DayanBeta::Number(2), DayanBeta::Number(2)]);
+    println!("{}", beta.as_expression()?);
+    Ok(())
+}
+#[test]
 fn export_psi() -> Result<(), DayanError> {
     let here = Path::new(env!("CARGO_MANIFEST_DIR"));
     let mut file = File::create(here.join("tests").join("psi.md"))?;

@@ -31,15 +31,49 @@ pub enum ExpressionTree {
         rest: Box<ExpressionTree>,
     },
     /// `head _ rest`
-    Sub {
+    Subscript {
         /// The head of the subscript
-        head: Box<ExpressionTree>,
-        /// The rest of the subscript
+        base: Box<ExpressionTree>,
         rest: Box<ExpressionTree>,
     },
+    Function {
+        body: FunctionExpression,
+    }
+}
+
+/// A function expression
+#[derive(Clone, Debug)]
+pub struct FunctionExpression {
+    name: char,
+    sup: Vec<ExpressionTree>,
+    sub: Vec<ExpressionTree>,
+    args: Vec<ExpressionTree>,
+}
+
+impl FunctionExpression {
+    /// Create a new function expression
+    pub fn new(name: char) -> Self {
+        FunctionExpression {
+            name,
+            sup: Vec::new(),
+            sub: Vec::new(),
+            args: Vec::new(),
+        }
+    }
 }
 
 impl ExpressionTree {
+    pub fn subscript<B, R>(base: B, rest: R) -> Self
+    where
+        B: Into<ExpressionTree>,
+        R: Into<ExpressionTree>,
+    {
+        ExpressionTree::Subscript {
+            base: Box::new(base.into()),
+            rest: Box::new(rest.into()),
+        }
+    }
+
     /// `x × k + a`
     #[inline]
     pub fn mul_add<B, P, A>(base: B, times: P, a: A) -> Self
@@ -68,7 +102,7 @@ impl ExpressionTree {
         P: Into<ExpressionTree>,
         A: Into<ExpressionTree>,
     {
-        ExpressionTree::Sub { head: Box::new(base.into()), rest: Box::new(power.into()) } + a.into()
+        Self::subscript(base, power) + a.into()
     }
     /// Check if expression is zero
     pub fn is_zero(&self) -> bool {
@@ -137,8 +171,18 @@ impl ExpressionTree {
             ExpressionTree::Sup { base, rest } => {
                 ExpressionTree::Sup { base: Box::new(base.as_simplify()), rest: Box::new(rest.as_simplify()) }
             }
-            ExpressionTree::Sub { head, rest } => {
-                ExpressionTree::Sub { head: Box::new(head.as_simplify()), rest: Box::new(rest.as_simplify()) }
+            ExpressionTree::Subscript { base, rest } => {
+                ExpressionTree::Subscript { base: Box::new(base.as_simplify()), rest: Box::new(rest.as_simplify()) }
+            }
+            ExpressionTree::Function { body } => {
+                ExpressionTree::Function {
+                    body: FunctionExpression {
+                        name: body.name,
+                        sup: body.sup.iter().map(|t| t.as_simplify()).collect(),
+                        sub: body.sub.iter().map(|t| t.as_simplify()).collect(),
+                        args: body.args.iter().map(|t| t.as_simplify()).collect(),
+                    }
+                }
             }
         }
     }

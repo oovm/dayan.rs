@@ -26,13 +26,41 @@ impl Display for ExpressionTree {
                 f.write_char('^')?;
                 write_bracketed(f, rest)?
             }
-            ExpressionTree::Sub { head, rest } => {
-                Display::fmt(head, f)?;
+            // a_{b_c}
+            ExpressionTree::Subscript { base, rest } => {
+                Display::fmt(base, f)?;
                 f.write_char('_')?;
                 write_bracketed(f, rest)?
             }
+            ExpressionTree::Function { body } => {
+
+                Display::fmt(body, f)?;
+
+            }
         }
         Ok(())
+    }
+}
+
+impl Display for FunctionExpression {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        f.write_char(self.name)?;
+        for term in &self.sup {
+            f.write_char('^')?;
+            write_bracketed(f, term)?
+        }
+        for term in &self.sub {
+            f.write_char('_')?;
+            write_bracketed(f, term)?
+        }
+        f.write_char('(')?;
+        for (i, term) in self.args.iter().enumerate() {
+            if i != 0 {
+                f.write_str(", ")?;
+            }
+            Display::fmt(term, f)?;
+        }
+        f.write_char(')')
     }
 }
 
