@@ -13,6 +13,7 @@ exclude = ["package.json", "tests/**"]
 [dependencies]
 num-traits = "0.2.14"
 latexify = "0.0.1"
+regex = "1.8.1"
 
 [dependencies.pex]
 version = "0.2.4"
