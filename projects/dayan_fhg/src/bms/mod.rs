@@ -1,21 +1,13 @@
 use std::fmt;
 
 struct Bms {
-    s: Vec<Vec<i32>>,
-    b: Option<i32>,
-    f: Option<fn(i32) -> i32>,
+    s: Vec<Vec<usize>>,
+    b: Option<usize>,
 }
 
 impl Bms {
-    fn new(s: Vec<Vec<i32>>, b: Option<i32>, f: Option<fn(i32) -> i32>) -> Bms {
-        Bms { s, b, f }
-    }
-
-    fn inc_bracket(&self) -> i32 {
-        match self.f {
-            Some(f) => (f)(self.b.unwrap()),
-            None => self.b.unwrap(),
-        }
+    fn new(s: Vec<Vec<usize>>, b: Option<usize>) -> Bms {
+        Bms { s, b }
     }
 
     fn expand(&self) -> Bms {
@@ -23,18 +15,22 @@ impl Bms {
         let xs = self.xs();
         let ys = self.ys();
 
-        let b1 = self.inc_bracket();
-        let s1 = s.iter().map(|row| row[..xs - 1].to_vec()).collect::<Vec<_>>();
+        let s1 = self.s[..xs - 1].to_vec();
+        println!("s1: {:?}", s1);
 
-        let r = self.get_bad_root();
-        if r == -1 {
-            return Bms::new(s1, Some(b1), self.f);
-        }
+        let r = match self.get_bad_root() {
+            Some(r) => r,
+            None => return Bms::new(s1, None),
+        };
 
         let mut delta = sub(&s[xs - 1], &s[r as usize]);
-        let lmnz = self.get_lowermost_nonzero(&s[xs - 1]);
-        for y in lmnz..ys as i32 {
-            delta[y as usize] = 0;
+        let lmnz = match self.get_lowermost_nonzero(&s[xs - 1]) {
+            Some(s) => s,
+            None => return Bms::new(s1, None),
+        };
+
+        for y in lmnz..ys {
+            delta[y] = 0;
         }
 
         let a = self.get_ascension();
@@ -51,7 +47,7 @@ impl Bms {
             }
         }
 
-        Bms::new(s1, Some(b1), self.f)
+        Bms::new(s1, None)
     }
 
     fn get_parent(&self, x: usize, y: usize) -> i32 {
@@ -73,30 +69,39 @@ impl Bms {
         -1
     }
 
-    fn get_bad_root(&self) -> i32 {
+    fn get_bad_root(&self) -> Option<usize> {
         let xs = self.xs();
         let x = xs - 1;
-        let y = self.get_lowermost_nonzero(&self.s[x]);
-        if y == -1 {
-            return -1;
+        let y = self.get_lowermost_nonzero(&self.s[x])?;
+        let p = self.get_parent(x, y);
+        if p == -1 {
+            return None;
         }
-        self.get_parent(x, y as usize)
+        Some(p as usize)
     }
 
-    fn get_ascension(&self) -> Vec<Vec<i32>> {
+    fn get_ascension(&self) -> Vec<Vec<usize>> {
         let xs = self.xs();
         let ys = self.ys();
-        let r = self.get_bad_root();
-        if r == -1 {
-            return Vec::new();
-        }
+        let r = match self.get_bad_root() {
+            Some(r) => r,
+            None => return vec![],
+        };
         let bs = xs - r as usize - 1;
         let mut a = vec![vec![0; ys]; bs];
         for y in 0..ys {
             a[0][y] = 1;
             for x in 1..bs {
                 let p = self.get_parent(x + r as usize, y);
-                if p != -1 && a[(p - r) as usize][y] == 1 {
+                if p == -1 {
+                    continue;
+                }
+
+                println!("p: {}, r: {}", p, r);
+                if p < r as i32 {
+                    continue;
+                }
+                if p != -1 && a[(p as usize - r)][y] == 1 {
                     a[x][y] = 1;
                 }
             }
@@ -104,13 +109,13 @@ impl Bms {
         a
     }
 
-    fn get_lowermost_nonzero(&self, c: &[i32]) -> i32 {
+    fn get_lowermost_nonzero(&self, c: &[usize]) -> Option<usize> {
         for (y, &elem) in c.iter().enumerate().rev() {
             if elem > 0 {
-                return y as i32;
+                return Some(y);
             }
         }
-        -1
+        None
     }
 
     fn xs(&self) -> usize {
@@ -142,17 +147,17 @@ impl fmt::Display for Bms {
     }
 }
 
-fn sub(a: &[i32], b: &[i32]) -> Vec<i32> {
+fn sub(a: &[usize], b: &[usize]) -> Vec<usize> {
     a.iter().zip(b.iter()).map(|(&x, &y)| x - y).collect()
 }
 
 #[test]
 fn test() {
-    ///  (0,0,0)(1,1,1)(2,1,0)(1,1,0)(2,2,1)(3,1,0)(2,2,1)
+    //  (0,0,0)(1,1,1)(2,1,0)(1,1,0)(2,2,1)(3,1,0)(2,2,1)
     let sequence =
         vec![vec![0, 0, 0], vec![1, 1, 1], vec![2, 1, 0], vec![1, 1, 0], vec![2, 2, 1], vec![3, 1, 0], vec![2, 2, 1]];
-    let b = Some(3);
-    let bms = Bms::new(sequence, b, Some(|x| x));
+    let b = Some(2);
+    let bms = Bms::new(sequence, b);
     println!("{}", bms);
     let bms = bms.expand();
     println!("{}", bms);
