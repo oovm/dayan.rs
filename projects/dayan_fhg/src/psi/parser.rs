@@ -1,9 +1,9 @@
 use super::*;
+use crate::utils::parse_integer;
 use pex::{
     helpers::{make_from_str, whitespace},
     BracketPattern, ParseResult, ParseState, StopBecause,
 };
-use std::str::FromStr;
 
 impl FromStr for DayanPsi {
     type Err = StopBecause;
@@ -33,8 +33,7 @@ fn parse_word(input: ParseState) -> ParseResult<&str> {
 }
 
 fn parse_number(input: ParseState) -> ParseResult<DayanPsi> {
-    let (state, str) = input.match_str_if(|c| c.is_ascii_digit(), "DECIMAL")?;
-    state.finish(DayanPsi::Number(u32::from_str(str)?))
+    parse_integer(input).map_inner(|s| DayanPsi::Number(s))
 }
 
 fn parse_omega(input: ParseState) -> ParseResult<DayanPsi> {

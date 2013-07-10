@@ -1,4 +1,4 @@
-use dayan::{DayanBeta, DayanError, DayanPsi};
+use dayan::{BMSConfig, BashicuMatrixSystem, DayanBeta, DayanError, DayanPsi};
 use std::{fs::File, io::Write, path::Path, str::FromStr};
 #[test]
 fn ready() {
@@ -76,6 +76,19 @@ fn export_beta3() -> Result<(), DayanError> {
     println!("{}", beta.as_expression()?);
     Ok(())
 }
+
+#[test]
+fn test() {
+    let fnt = BMSConfig::default();
+    let sequence = vec![vec![0, 0], vec![1, 1], vec![2, 1]];
+    let bms = BashicuMatrixSystem::new(sequence.clone()).expand();
+    println!("{:?}", bms);
+    let bms = bms.expand();
+    println!("{}", fnt.render(&bms));
+    let bms = bms.expand();
+    println!("{}", fnt.render(&bms));
+}
+
 #[test]
 fn export_psi() -> Result<(), DayanError> {
     let here = Path::new(env!("CARGO_MANIFEST_DIR"));

@@ -12,7 +12,7 @@ exclude = ["package.json", "tests/**"]
 
 [dependencies]
 num-traits = "0.2.14"
-latexify = "0.0.1"
+latexify = "0.1.0"
 regex = "1.8.1"
 ndarray = "0.15.6"
 

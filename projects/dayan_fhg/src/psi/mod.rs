@@ -1,5 +1,8 @@
 use crate::{DayanError, ExpressionTree};
-use std::fmt::{Debug, Display, Formatter, Write};
+use std::{
+    fmt::{Debug, Display, Formatter, Write},
+    str::FromStr,
+};
 
 mod display;
 mod parser;

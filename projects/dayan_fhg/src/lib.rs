@@ -11,9 +11,13 @@ mod psi;
 
 mod bms;
 
+pub(crate) mod utils;
+
 pub use crate::{
     beta::DayanBeta,
     errors::{DayanError, DayanErrorKind},
     expression::ExpressionTree,
     psi::DayanPsi,
 };
+
+pub use crate::bms::{BMSConfig, BashicuMatrixSystem};

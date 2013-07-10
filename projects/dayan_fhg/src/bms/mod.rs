@@ -1,36 +1,58 @@
+use latexify::Latexify;
 use std::{
-    fmt::{Display, Formatter},
+    fmt::{Debug, Display, Formatter, Write},
     num::NonZeroUsize,
 };
 
+mod display;
+mod parser;
+
+/// Get the number of rows in the matrix
 #[derive(Clone)]
-struct BashicuMatrixSystem {
+pub struct BashicuMatrixSystem {
+    // TODO: use nd array
     matrix: Vec<Vec<usize>>,
     expand: NonZeroUsize,
 }
 
-impl BashicuMatrixSystem {
-    pub fn new(s: Vec<Vec<usize>>) -> BashicuMatrixSystem {
-        BashicuMatrixSystem { matrix: s, expand: unsafe { NonZeroUsize::new_unchecked(2) } }
+/// A configuration for the BMS
+#[derive(Copy, Clone, Debug)]
+pub struct BMSConfig {
+    pub color: bool,
+    pub display: bool,
+    pub ellipsis: bool,
+}
+
+impl Default for BMSConfig {
+    fn default() -> Self {
+        Self { color: false, display: false, ellipsis: false }
     }
-    pub fn with_expand_steps(mut self, steps: NonZeroUsize) -> BashicuMatrixSystem {
+}
+
+impl BashicuMatrixSystem {
+    /// Get the number of rows in the matrix
+    pub fn new(s: Vec<Vec<usize>>) -> Self {
+        Self { matrix: s, expand: unsafe { NonZeroUsize::new_unchecked(2) } }
+    }
+    /// Get the number of rows in the matrix
+    pub fn with_expand_steps(mut self, steps: NonZeroUsize) -> Self {
         self.expand = steps;
         self
     }
-
-    fn expand(&self) -> BashicuMatrixSystem {
+    /// Get the number of rows in the matrix
+    pub fn expand(&self) -> Self {
         let s = &self.matrix;
         let xs = self.xs();
         let ys = self.ys();
         let s1 = self.matrix[..xs - 1].to_vec();
         let r = match self.get_bad_root() {
             Some(r) => r,
-            None => return BashicuMatrixSystem::new(s1).with_expand_steps(self.expand),
+            None => return Self { matrix: s1, expand: self.expand },
         };
         let mut delta = diff(&s[xs - 1], &s[r]);
         let lmnz = match self.get_lowermost_nonzero(&s[xs - 1]) {
             Some(s) => s,
-            None => return BashicuMatrixSystem::new(s1).with_expand_steps(self.expand),
+            None => return Self { matrix: s1, expand: self.expand },
         };
         for y in lmnz..ys {
             delta[y] = 0;
@@ -47,7 +69,7 @@ impl BashicuMatrixSystem {
                 s1.push(da);
             }
         }
-        BashicuMatrixSystem::new(s1).with_expand_steps(self.expand)
+        Self { matrix: s1, expand: self.expand }
     }
 
     fn get_parent(&self, x: usize, y: usize) -> Option<usize> {
@@ -124,39 +146,6 @@ impl BashicuMatrixSystem {
     }
 }
 
-impl Display for BashicuMatrixSystem {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        let mut result = String::new();
-        for c in &self.matrix {
-            result.push('(');
-            for (i, &r) in c.iter().enumerate() {
-                result.push_str(&r.to_string());
-                if i != c.len() - 1 {
-                    result.push(',');
-                }
-            }
-            result.push(')');
-        }
-        result.push_str(&format!("[{}]", self.expand));
-        write!(f, "{}", result)
-    }
-}
-
 fn diff(a: &[usize], b: &[usize]) -> Vec<usize> {
     a.iter().zip(b.iter()).map(|(&x, &y)| x - y).collect()
-}
-
-#[test]
-fn test() {
-    //  (0,0,0)(1,1,1)(2,1,0)(1,1,0)(2,2,1)(3,1,0)(2,2,1)
-    let sequence =
-        vec![vec![0, 0, 0], vec![1, 1, 1], vec![2, 1, 0], vec![1, 1, 0], vec![2, 2, 1], vec![3, 1, 0], vec![2, 2, 1]];
-    let bms = BashicuMatrixSystem::new(sequence.clone());
-    println!("{}", bms);
-    let bms = BashicuMatrixSystem::new(sequence.clone()).expand();
-    println!("{}", bms);
-    let bms = bms.expand();
-    println!("{}", bms);
-    let bms = bms.expand();
-    println!("{}", bms);
 }
