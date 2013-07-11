@@ -1,15 +1,10 @@
 use super::*;
 
-
 impl One for DayanBeta {
     fn one() -> Self {
         todo!()
     }
 }
-
-
-
-
 
 impl Zero for DayanBeta {
     fn zero() -> Self {

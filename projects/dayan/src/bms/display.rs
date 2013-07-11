@@ -39,18 +39,6 @@ impl Latexify for BashicuMatrixSystem {
     type Context = BMSConfig;
     fn fmt<W: Write>(&self, c: &Self::Context, f: &mut W) -> std::fmt::Result {
         if c.display {
-            for coloum in &self.matrix {
-                f.write_char('(')?;
-                for (i, &r) in coloum.iter().enumerate() {
-                    if i != 0 {
-                        f.write_str(",")?;
-                    }
-                    Latexify::fmt(&r, &(), f)?;
-                }
-                f.write_str(")")?;
-            }
-        }
-        else {
             f.write_str("\\begin{bmatrix}\n")?;
             for i in 0..self.ys() {
                 for j in 0..self.xs() {
@@ -66,10 +54,28 @@ impl Latexify for BashicuMatrixSystem {
                     if j != self.xs() - 1 {
                         f.write_str(" & ")?;
                     }
+                    else if c.ellipsis {
+                        f.write_str(" & \\cdots")?;
+                    }
                 }
                 f.write_str("\\\\\n")?;
             }
             f.write_str("\\end{bmatrix}")?;
+        }
+        else {
+            for coloum in &self.matrix {
+                f.write_char('(')?;
+                for (i, &r) in coloum.iter().enumerate() {
+                    if i != 0 {
+                        f.write_str(",")?;
+                    }
+                    Latexify::fmt(&r, &(), f)?;
+                }
+                f.write_str(")")?
+            }
+            if c.ellipsis {
+                f.write_str("(\\cdots)")?
+            }
         }
         Ok(())
     }
