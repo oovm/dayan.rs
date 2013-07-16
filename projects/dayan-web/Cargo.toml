@@ -1,5 +1,5 @@
 [package]
-name = "katex-preview"
+name = "dayan-preview"
 publish = false
 version = "0.2.0"
 authors = ["Aster <192607617@qq.com>"]
@@ -12,11 +12,13 @@ edition = "2018"
 [dependencies]
 log = "0.4.17"
 wasm-logger = "0.2.0"
-dioxus = { version = "0.2.4", features = ["web"] }
+dioxus = { version = "0.3.2", features = [] }
+dioxus-web = "0.3.2"
+dioxus-katex = "0.3.2"
 
 [dependencies.dayan]
 version = "*"
 path = "../dayan"
 
-[dev-dependencies]
-macrowind = "0.1.1"
+#[dev-dependencies]
+#macrowind = "0.1.1"

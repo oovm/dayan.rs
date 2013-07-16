@@ -1,0 +1,25 @@
+[application]
+name = "dayan"
+default_platform = "web"
+out_dir = "dist"
+asset_dir = "assets"
+
+[web.app]
+title = "Dayan"
+
+[web.watcher]
+reload_html = true
+watch_path = ["src", "assets"]
+
+
+[web.resource]
+style = [
+    "./assets/main.scss",
+    "https://unpkg.com/tailwindcss@2.2/dist/tailwind.min.css",
+    "https://unpkg.com/daisyui@1.24.3/dist/full.css",
+    "https://unpkg.com/katex@0.16.0/dist/katex.min.css"
+]
+script = []
+
+[web.resource.dev]
+script = []

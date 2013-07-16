@@ -2,7 +2,8 @@
 resolver = "2"
 members = ["projects/*"]
 default-members = [
-    "projects/dayan_fhg",
+    "projects/dayan",
+    "projects/dayan-web",
 ]
 exclude = [
     "projects/.DS_Store",
