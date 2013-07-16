@@ -1,143 +1,83 @@
-use dioxus::{events::FormEvent, prelude::*};
-
+use crate::config::{use_dayan, UseDayan};
 use dayan::{BMSConfig, BashicuMatrixSystem};
+use dioxus::{events::FormEvent, prelude::*};
 use dioxus_katex::{use_katex_display, UseKatex};
-use log::log;
+use std::{
+    convert::TryFrom,
+    num::{NonZeroUsize, TryFromIntError},
+    str::FromStr,
+};
 
-pub fn Editor(cx: Scope) -> Element {
+pub fn BMSEditor(cx: Scope) -> Element {
+    let dayan = use_dayan(cx);
     let mut config = BMSConfig::default();
-    config.display = true;
-    let bms = BashicuMatrixSystem::new(vec![vec![0, 0], vec![1, 1], vec![2, 1]]).expand();
-
-    let place_holder = r#"K_{0}-K_{1}=\frac{E}{c^2}\frac{v^2}{2}"#;
-    let text = use_state(&cx, || place_holder.to_string());
+    config.ellipsis = dayan.ellipsis();
+    /// initial value
+    let mut bms = BashicuMatrixSystem::new(vec![vec![0, 0, 0], vec![1, 1, 1], vec![2, 1, 0]]);
+    bms.set_expand_steps(dayan.expands());
+    let bms = bms.expand();
+    let place_holder = r#"(0, 0, 0)(1, 1, 1)(2, 1, 0)"#;
+    let current_text = use_state(&cx, || place_holder.to_string());
+    let color = dayan.color_toggle();
+    let ellipsis = dayan.ellipsis_toggle();
+    let expand = dayan.expands_slider();
+    // katex render
     let katex = use_katex_display(&cx);
-    let is_display = DisplayToggle(katex, "Display Mode");
-    let is_display2 = DisplayToggle(katex, "Ellipsis");
-    let math = katex.compile(text);
-    // <select class="select select-info w-full max-w-xs">
-    //   <option disabled selected>Select language</option>
-    //   <option>English</option>
-    //   <option>Japanese</option>
-    //   <option>Italian</option>
-    // </select>
+    config.display = false;
+    let bms_inline = config.render(&bms);
+    let math_inline = katex.compile(&bms_inline);
+    config.display = true;
+    let bms_display = config.render(&bms);
+    let math_display = katex.compile(&bms_display);
+    /// <div class="flex items-center justify-center h-screen">
+    //   <div class="w-full sm:w-4/5">
+    //     <!-- 内容 -->
+    //   </div>
+    // </div>
     cx.render(rsx!(
-        select {
-            class: "select select-primary w-full max-w-xs",
-            value: "bms40",
-            onchange: move |e| log::info!("mode: {}", e.value),
-            option {
-                disabled: "true",
-                selected: "true",
-                "Select Notation"
-            }
-            option {
-                value: "bms40",
-                "BMS 4.0"
-            }
-            option {
-                value: "y",
-                "Y Sequence"
-            }
-        }
-        a {
-            href: "https://github.com/oovm/dayan.rs/issues",
-            target: "_blank",
-            button {
-                class: "py-2 px-4 mr-2 mb-2 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700",
-                r#type: "button",
-                "Report bug on github"
+        div {
+            class: "form-control flex-1",
+            textarea {
+                class: "textarea h-96 textarea-bordered textarea-primary",
+                id: "editor",
+                placeholder: "{place_holder}",
+                oninput: move |e| current_text.set(e.value.to_owned()),
+                value: "{current_text}",
             }
         }
         div {
-            class: "flex flex-column",
-            div {
-                class: "form-control flex-1",
-                textarea {
-                    class: "textarea h-96 textarea-bordered textarea-primary",
-                    id: "editor",
-                    placeholder: "{place_holder}",
-                    oninput: move |e| text.set(e.value.to_owned()),
-                    value: "{text}",
-                }
+            class: "flex-1 ml-2 mr-2",
+            h3 {
+                "Inline Math:"
             }
-            div {
-                class: "flex-1 ml-2 mr-2",
-                math
+            pre {
+                class: "text-sm",
+                "{bms_inline}"
             }
+            math_inline
+        }
+        div {
+            class: "flex-1 ml-2 mr-2",
+            h3 {
+                "Display Math:"
+            }
+            pre {
+                class: "text-sm",
+                "{bms_display}"
+            }
+            math_display
         }
         div {
             class: "form-control",
-            is_display
+            color
         }
         div {
             class: "form-control",
-            is_display2
+            ellipsis
         }
         div {
             class: "form-control",
-            "a"
+            expand
         }
     ))
 }
-
-fn DisplayToggle<'a>(ctx: &'a UseKatex, text: &'static str) -> LazyNodes<'a, 'a> {
-    let v = ctx.get_config().display_mode;
-    let click = move |e: FormEvent| match e.value.as_str() {
-        "true" => ctx.set_display_mode(),
-        "false" => ctx.set_inline_mode(),
-        _ => {}
-    };
-    rsx!(
-        label {
-            class: "cursor-pointer label",
-            span {
-                class: "label-text",
-                "{text}"
-            }
-            input {
-                r#type: "checkbox",
-                class: "toggle",
-                checked: "{v}",
-                oninput: click
-            }
-        }
-    )
-}
-// fn ModeSelect(vtx: &UseKatex) -> LazyNodes {
-//     let v = vtx.get_mode();
-//     rsx!(
-//         label {
-//             class: "cursor-pointer label",
-//             span {
-//                 class: "label-text",
-//                 "Compile Mode"
-//             }
-//             select {
-//                 class: "select select-primary w-full max-w-xs",
-//                 value: "{v}",
-//                 onchange: move |e| vtx.set_mode(e),
-//                 option {
-//                     value: "m",
-//                     "Normal"
-//                 }
-//                 option {
-//                     value: "i",
-//                     "Inline"
-//                 }
-//                 option {
-//                     value: "s",
-//                     "Scoped"
-//                 }
-//                 option {
-//                     value: "k",
-//                     "DataKey"
-//                 }
-//                 option {
-//                     value: "v",
-//                     "DataValue"
-//                 }
-//             }
-//         }
-//     )
-// }

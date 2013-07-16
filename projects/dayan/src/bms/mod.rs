@@ -35,8 +35,19 @@ impl BashicuMatrixSystem {
         Self { matrix: s, expand: unsafe { NonZeroUsize::new_unchecked(2) } }
     }
     /// Get the number of rows in the matrix
-    pub fn with_expand_steps(mut self, steps: NonZeroUsize) -> Self {
-        self.expand = steps;
+    pub fn set_expand_steps(&mut self, steps: usize) -> bool {
+        match NonZeroUsize::new(steps) {
+            Some(s) => {
+                self.expand = s;
+                true
+            }
+            None => false,
+        }
+    }
+
+    /// Get the number of rows in the matrix
+    pub fn with_expand_steps(mut self, steps: usize) -> Self {
+        self.set_expand_steps(steps);
         self
     }
     /// Get the number of rows in the matrix
