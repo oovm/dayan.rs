@@ -1,26 +1,22 @@
-use crate::config::{use_dayan, UseDayan};
-use dayan::{BMSConfig, BashicuMatrixSystem};
-use dioxus::{events::FormEvent, prelude::*};
-use dioxus_katex::{use_katex_display, UseKatex};
-use std::{
-    convert::TryFrom,
-    num::{NonZeroUsize, TryFromIntError},
-    str::FromStr,
-};
+use crate::config::use_dayan;
+use dayan::BMSConfig;
+use dioxus::prelude::*;
+use dioxus_katex::use_katex_display;
 
 pub fn BMSEditor(cx: Scope) -> Element {
     let dayan = use_dayan(cx);
     let mut config = BMSConfig::default();
     config.ellipsis = dayan.ellipsis();
-    /// initial value
-    let mut bms = BashicuMatrixSystem::new(vec![vec![0, 0, 0], vec![1, 1, 1], vec![2, 1, 0]]);
-    bms.set_expand_steps(dayan.expands());
-    let bms = bms.expand();
+    // initial value
     let place_holder = r#"(0, 0, 0)(1, 1, 1)(2, 1, 0)"#;
     let current_text = use_state(&cx, || place_holder.to_string());
+    let mut bms = dayan.get_bms();
+    bms.set_expand_steps(dayan.expands());
+    let bms = bms.expand();
     let color = dayan.color_toggle();
     let ellipsis = dayan.ellipsis_toggle();
     let expand = dayan.expands_slider();
+    let update_bms = dayan.on_bms_input();
     // katex render
     let katex = use_katex_display(&cx);
     config.display = false;
@@ -29,11 +25,6 @@ pub fn BMSEditor(cx: Scope) -> Element {
     config.display = true;
     let bms_display = config.render(&bms);
     let math_display = katex.compile(&bms_display);
-    /// <div class="flex items-center justify-center h-screen">
-    //   <div class="w-full sm:w-4/5">
-    //     <!-- 内容 -->
-    //   </div>
-    // </div>
     cx.render(rsx!(
         div {
             class: "form-control flex-1",
@@ -41,7 +32,10 @@ pub fn BMSEditor(cx: Scope) -> Element {
                 class: "textarea h-96 textarea-bordered textarea-primary",
                 id: "editor",
                 placeholder: "{place_holder}",
-                oninput: move |e| current_text.set(e.value.to_owned()),
+                oninput: move |e| {
+                    current_text.set(e.value.to_owned());
+                    update_bms(e);
+                },
                 value: "{current_text}",
             }
         }

@@ -1,3 +1,4 @@
+use dayan::BashicuMatrixSystem;
 use dioxus::{core_macro::rsx, events::FormEvent, prelude::*};
 use std::{cell::RefCell, rc::Rc, str::FromStr, sync::Arc};
 
@@ -11,12 +12,39 @@ pub struct DayanOptions {
     color: bool,
     ellipsis: bool,
     expands: usize,
+    bms: BashicuMatrixSystem,
 }
 
 pub fn use_dayan(cx: &ScopeState) -> &mut UseDayan {
-    let options = DayanOptions { color: false, ellipsis: false, expands: 2 };
+    let options = DayanOptions {
+        color: false,
+        ellipsis: false,
+        expands: 2,
+        bms: BashicuMatrixSystem::new(vec![vec![0, 0, 0], vec![1, 1, 1], vec![2, 1, 0]]).expect("BMS"),
+    };
     let katex = UseDayan { dayan: Rc::new(RefCell::new(options)), updater: cx.schedule_update() };
     cx.use_hook(|| katex)
+}
+
+impl UseDayan {
+    pub fn get_bms(&self) -> BashicuMatrixSystem {
+        self.dayan.borrow().bms.clone()
+    }
+    pub fn on_bms_input(&self) -> impl Fn(FormEvent) {
+        let copy = self.clone();
+        move |e| {
+            let mut v = copy.dayan.borrow_mut();
+            match BashicuMatrixSystem::from_str(e.value.as_str()) {
+                Ok(o) => {
+                    v.bms = o;
+                    copy.needs_update();
+                }
+                Err(_) => {
+                    // log::error!("{:?}", e)
+                }
+            };
+        }
+    }
 }
 
 impl UseDayan {

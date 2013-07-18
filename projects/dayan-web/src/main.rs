@@ -3,23 +3,19 @@
 #![allow(clippy::mut_from_ref)]
 #![allow(clippy::derivable_impls)]
 
+pub use self::components::*;
 use dioxus::prelude::*;
+use log::LevelFilter;
+
 mod components;
 mod config;
 
-pub use self::components::*;
-use crate::config::use_dayan;
-
 fn main() {
-    wasm_logger::init(wasm_logger::Config::default());
+    if cfg!(debug_assertions) {
+        dioxus_logger::init(LevelFilter::Info).expect("failed to init logger");
+    };
     dioxus_web::launch(AppWeb)
 }
-
-// pub fn main_ssr() {
-//     let mut vdom = VirtualDom::new(AppWeb);
-//     let _ = vdom.rebuild();
-//     println!("{}", dioxus::ssr::render_vdom(&vdom));
-// }
 
 pub fn AppWeb(cx: Scope) -> Element {
     cx.render(rsx! {

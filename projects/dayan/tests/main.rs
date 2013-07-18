@@ -81,8 +81,8 @@ fn export_beta3() -> Result<(), DayanError> {
 fn test() {
     let mut fnt = BMSConfig::default();
     fnt.ellipsis = true;
-    let sequence = vec![vec![0, 0], vec![1, 1], vec![2, 1]];
-    let bms = BashicuMatrixSystem::new(sequence.clone()).expand();
+    let sequence = vec![vec![0, 0], vec![1, 1], vec![2, 2]];
+    let bms = BashicuMatrixSystem::new(sequence.clone()).unwrap().expand();
     println!("{:?}", bms);
     let bms = bms.expand();
     println!("{}", fnt.render(&bms));

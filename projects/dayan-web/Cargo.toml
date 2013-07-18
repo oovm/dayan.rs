@@ -11,10 +11,11 @@ edition = "2018"
 
 [dependencies]
 log = "0.4.17"
-wasm-logger = "0.2.0"
+#wasm-logger = "0.2.0"
 dioxus = { version = "0.3.2", features = [] }
 dioxus-web = "0.3.2"
 dioxus-katex = "0.3.2"
+dioxus-logger = "0.4.1"
 
 [dependencies.dayan]
 version = "*"

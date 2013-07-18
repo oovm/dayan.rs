@@ -1,3 +1,4 @@
+use crate::DayanError;
 use latexify::Latexify;
 use std::{
     fmt::{Debug, Display, Formatter, Write},
@@ -11,15 +12,18 @@ mod parser;
 #[derive(Clone)]
 pub struct BashicuMatrixSystem {
     // TODO: use nd array
-    matrix: Vec<Vec<usize>>,
+    matrix: Vec<Vec<u32>>,
     expand: NonZeroUsize,
 }
 
 /// A configuration for the BMS
 #[derive(Copy, Clone, Debug)]
 pub struct BMSConfig {
+    /// Whether to use color
     pub color: bool,
+    /// Whether to display the matrix
     pub display: bool,
+    /// Whether to use ellipsis
     pub ellipsis: bool,
 }
 
@@ -31,8 +35,10 @@ impl Default for BMSConfig {
 
 impl BashicuMatrixSystem {
     /// Get the number of rows in the matrix
-    pub fn new(s: Vec<Vec<usize>>) -> Self {
-        Self { matrix: s, expand: unsafe { NonZeroUsize::new_unchecked(2) } }
+    pub fn new(s: Vec<Vec<u32>>) -> Result<Self, DayanError> {
+        let out = Self { matrix: s, expand: unsafe { NonZeroUsize::new_unchecked(2) } };
+        out.check_shape()?;
+        Ok(out)
     }
     /// Get the number of rows in the matrix
     pub fn set_expand_steps(&mut self, steps: usize) -> bool {
@@ -50,6 +56,24 @@ impl BashicuMatrixSystem {
         self.set_expand_steps(steps);
         self
     }
+
+    fn check_shape(&self) -> Result<(), DayanError> {
+        let mut len = 0;
+        for column in &self.matrix {
+            let clen = column.len();
+            if len == 0 {
+                len = clen
+            }
+            else if len != column.len() {
+                Err(DayanError::too_less_argument("BMS", len).with_min_argument(clen as u32).with_max_argument(clen as u32))?
+            }
+        }
+        if len == 0 {
+            Err(DayanError::too_less_argument("BMS", 0).with_min_argument(1).with_max_argument(1))?
+        }
+        Ok(())
+    }
+
     /// Get the number of rows in the matrix
     pub fn expand(&self) -> Self {
         let s = &self.matrix;
@@ -75,7 +99,7 @@ impl BashicuMatrixSystem {
             for x in 0..bs {
                 let mut da = vec![0; ys];
                 for y in 0..ys {
-                    da[y] = s[r + x][y] + delta[y] * a[x][y] * (i + 1);
+                    da[y] = s[r + x][y] + delta[y] * a[x][y] * (i + 1) as u32;
                 }
                 s1.push(da);
             }
@@ -89,9 +113,6 @@ impl BashicuMatrixSystem {
             if y != 0 {
                 p = self.get_parent(p, y - 1)?;
             }
-            // else if p == 0 {
-            //     return None;
-            // }
             else {
                 p -= 1
             }
@@ -110,7 +131,7 @@ impl BashicuMatrixSystem {
         Some(p)
     }
 
-    fn get_ascension(&self) -> Vec<Vec<usize>> {
+    fn get_ascension(&self) -> Vec<Vec<u32>> {
         let xs = self.xs();
         let ys = self.ys();
         let r = match self.get_bad_root() {
@@ -139,7 +160,7 @@ impl BashicuMatrixSystem {
         a
     }
 
-    fn get_lowermost_nonzero(&self, c: &[usize]) -> Option<usize> {
+    fn get_lowermost_nonzero(&self, c: &[u32]) -> Option<usize> {
         for (y, &elem) in c.iter().enumerate().rev() {
             if elem > 0 {
                 return Some(y);
@@ -157,6 +178,6 @@ impl BashicuMatrixSystem {
     }
 }
 
-fn diff(a: &[usize], b: &[usize]) -> Vec<usize> {
+fn diff(a: &[u32], b: &[u32]) -> Vec<u32> {
     a.iter().zip(b.iter()).map(|(&x, &y)| x - y).collect()
 }
