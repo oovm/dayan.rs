@@ -1,4 +1,4 @@
-use dayan::{BMSConfig, BashicuMatrixSystem, DayanBeta, DayanError, DayanPsi};
+use dayan::{BMSConfig, BashicuMatrixSystem, DayanAlpha, DayanBeta, DayanError};
 use std::{fs::File, io::Write, path::Path, str::FromStr};
 #[test]
 fn ready() {
@@ -10,7 +10,7 @@ pub fn show(input: &str) -> Result<(), DayanError> {
         if line.trim().is_empty() {
             continue;
         }
-        let node = DayanPsi::from_str(line)?;
+        let node = DayanAlpha::from_str(line)?;
         let expr = node.as_expression()?;
         println!("{}:", node);
         // println!("  {:?}", node);
@@ -26,7 +26,7 @@ pub fn markdown(input: &str, file: &mut File) -> Result<(), DayanError> {
         if line.trim().is_empty() {
             continue;
         }
-        let node = DayanPsi::from_str(line)?;
+        let node = DayanAlpha::from_str(line)?;
         let expr = node.as_expression()?;
         writeln!(file, "| ${:?}$ | ${}$ | ${}$ |", node, node, expr)?;
     }

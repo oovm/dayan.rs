@@ -1,11 +1,14 @@
-use std::cmp::Ordering;
 use crate::{DayanError, ExpressionTree};
-use std::collections::BTreeMap;
-use std::ops::{Add, Mul};
-use std::vec;
 use num_traits::{One, Zero};
-
+use std::{
+    cmp::Ordering,
+    collections::BTreeMap,
+    ops::{Add, Mul},
+    str::FromStr,
+    vec,
+};
 mod arithmetic;
+mod parser;
 
 /// A beta expression
 #[derive(Debug, Eq, PartialEq)]
@@ -16,10 +19,6 @@ pub enum DayanBeta {
     Beta(u32, Vec<DayanBeta>),
 }
 
-
-
-
-
 impl DayanBeta {
     /// Convert to an expression tree
     pub fn as_expression(&self) -> Result<ExpressionTree, DayanError> {
@@ -29,12 +28,12 @@ impl DayanBeta {
                 let group = same_group(p);
                 match *rank {
                     // identity
-                    0 => {
-                        match p.len() {
-                            0 => Ok(ExpressionTree::Number(0)),
-                            1 => p[0].as_expression(),
-                            _ => Err(DayanError::too_much_argument("DayanBeta::Beta(0, _)", p.len()).with_min_argument(0).with_max_argument(1)),
-                        }
+                    0 => match p.len() {
+                        0 => Ok(ExpressionTree::Number(0)),
+                        1 => p[0].as_expression(),
+                        _ => Err(DayanError::too_much_argument("DayanBeta::Beta(0, _)", p.len())
+                            .with_min_argument(0)
+                            .with_max_argument(1)),
                     },
                     // sum
                     1 => self.cast_add(group).map(|s| s.as_simplify()),
@@ -50,8 +49,6 @@ impl DayanBeta {
     pub fn is_number(&self) -> bool {
         matches!(self, DayanBeta::Number(_))
     }
-
-
 }
 impl DayanBeta {
     fn cast_add(&self, count: BTreeMap<&DayanBeta, u32>) -> Result<ExpressionTree, DayanError> {
@@ -74,19 +71,15 @@ impl DayanBeta {
 impl DayanBeta {
     fn cast_mul(&self, count: BTreeMap<&DayanBeta, u32>) -> Result<ExpressionTree, DayanError> {
         let mut terms = vec![];
-        for (node, count) in count.into_iter().rev()  {
+        for (node, count) in count.into_iter().rev() {
             terms.push(node.as_rank2(count)?)
         }
         Ok(ExpressionTree::Product { mul: terms })
     }
     fn as_rank2(&self, count: u32) -> Result<ExpressionTree, DayanError> {
         match self {
-            DayanBeta::Number(1) => {
-                Ok(ExpressionTree::Letter('ω') ^ ExpressionTree::Number(count))
-            },
-            DayanBeta::Number(2) => {
-                Ok(ExpressionTree::subscript('ε', count))
-            },
+            DayanBeta::Number(1) => Ok(ExpressionTree::Letter('ω') ^ ExpressionTree::Number(count)),
+            DayanBeta::Number(2) => Ok(ExpressionTree::subscript('ε', count)),
             DayanBeta::Number(_) => {
                 panic!()
             }
@@ -98,7 +91,7 @@ impl DayanBeta {
 impl DayanBeta {
     fn cast_pow(&self, count: BTreeMap<&DayanBeta, u32>) -> Result<ExpressionTree, DayanError> {
         let mut terms = vec![];
-        for (node, count) in count.into_iter().rev()  {
+        for (node, count) in count.into_iter().rev() {
             terms.push(node.as_rank3(count, 1)?)
         }
         Ok(ExpressionTree::subscript('φ', ExpressionTree::Product { mul: terms }))
@@ -107,10 +100,10 @@ impl DayanBeta {
         match self {
             DayanBeta::Number(1) => {
                 todo!()
-            },
+            }
             DayanBeta::Number(2) => {
                 todo!()
-            },
+            }
             DayanBeta::Number(_) => {
                 panic!()
             }
@@ -118,8 +111,6 @@ impl DayanBeta {
         }
     }
 }
-
-
 
 fn same_group(list: &[DayanBeta]) -> BTreeMap<&DayanBeta, u32> {
     let mut groups: BTreeMap<&DayanBeta, u32> = Default::default();
@@ -146,5 +137,3 @@ fn same_group(list: &[DayanBeta]) -> BTreeMap<&DayanBeta, u32> {
     }
     groups
 }
-
-
