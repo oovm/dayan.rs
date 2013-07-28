@@ -7,6 +7,8 @@ use std::{
     str::FromStr,
     vec,
 };
+use crate::dps::{DayanPair, DayanPairSequence};
+
 mod arithmetic;
 mod parser;
 
@@ -50,6 +52,7 @@ impl DayanBeta {
         matches!(self, DayanBeta::Number(_))
     }
 }
+
 impl DayanBeta {
     fn cast_add(&self, count: BTreeMap<&DayanBeta, u32>) -> Result<ExpressionTree, DayanError> {
         let mut terms = vec![];
@@ -136,4 +139,41 @@ fn same_group(list: &[DayanBeta]) -> BTreeMap<&DayanBeta, u32> {
         }
     }
     groups
+}
+
+
+impl DayanBeta {
+    pub fn as_dps(&self) -> Result<DayanPairSequence, DayanError> {
+        let mut out = DayanPairSequence::default();
+        match self {
+            DayanBeta::Number(v) => {
+                for _ in 0..*v {
+                    out += DayanPair::new(0,0);
+                }
+            },
+            DayanBeta::Beta(rank, p) => {
+                for i in 1..*rank {
+                    out += DayanPair::new(i-1,i-1);
+                }
+                for i in p {
+                    i.visit_dps(&mut out, 0)?;
+                }
+            }
+        }
+
+        Ok(out)
+    }
+    fn visit_dps(&self, dps: &mut DayanPairSequence, depth: u32) -> Result<(), DayanError> {
+        match self {
+            DayanBeta::Number(v) => {
+                *dps += DayanPair::new(*v,depth);
+            },
+            DayanBeta::Beta(rank, p) => {
+                for i in p {
+                    i.visit_dps(dps, depth+1)?;
+                }
+            }
+        }
+        Ok(())
+    }
 }
