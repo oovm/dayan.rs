@@ -156,21 +156,31 @@ impl DayanBeta {
                     out += DayanPair::new(i-1,i-1);
                 }
                 for i in p {
-                    i.visit_dps(&mut out, 0)?;
+                    i.visit_dps(&mut out, *rank, *rank - 1)?;
                 }
             }
         }
 
         Ok(out)
     }
-    fn visit_dps(&self, dps: &mut DayanPairSequence, depth: u32) -> Result<(), DayanError> {
+    fn visit_dps(&self, dps: &mut DayanPairSequence, max: u32, depth: u32) -> Result<(), DayanError> {
         match self {
             DayanBeta::Number(v) => {
-                *dps += DayanPair::new(*v,depth);
+                *dps += DayanPair::new(depth, *v - 1);
             },
             DayanBeta::Beta(rank, p) => {
                 for i in p {
-                    i.visit_dps(dps, depth+1)?;
+                    if *rank > max {
+                        *dps += DayanPair::new(depth, *rank - 1);
+                        i.visit_dps(dps, *rank,depth+1)?;
+                    }
+                    else {
+                        for _ in 0..max - *rank {
+                            *dps += DayanPair::new(depth, 0);
+                        }
+                        *dps += DayanPair::new(depth+1, *rank - 1);
+                        i.visit_dps(dps, max,depth+1)?;
+                    }
                 }
             }
         }
