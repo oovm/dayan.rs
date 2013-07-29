@@ -6,10 +6,11 @@
 
 mod alpha;
 mod beta;
+mod bms;
+mod dps;
 mod errors;
 mod expression;
-mod dps;
-mod bms;
+mod gamma;
 
 pub(crate) mod utils;
 
