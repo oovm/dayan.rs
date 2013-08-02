@@ -1,6 +1,7 @@
 use crate::DayanError;
 use latexify::Latexify;
 use std::{
+    collections::VecDeque,
     fmt::{Debug, Display, Formatter, Write},
     num::NonZeroUsize,
 };
@@ -12,7 +13,7 @@ mod parser;
 #[derive(Clone)]
 pub struct BashicuMatrixSystem {
     // TODO: use nd array
-    matrix: Vec<Vec<u32>>,
+    matrix: VecDeque<Vec<u32>>,
     expand: NonZeroUsize,
 }
 
@@ -35,9 +36,16 @@ impl Default for BMSConfig {
 
 impl BashicuMatrixSystem {
     /// Get the number of rows in the matrix
-    pub fn new(s: Vec<Vec<u32>>) -> Result<Self, DayanError> {
-        let out = Self { matrix: s, expand: unsafe { NonZeroUsize::new_unchecked(2) } };
-        out.check_shape()?;
+    pub fn new<I>(s: I) -> Result<Self, DayanError>
+    where
+        I: IntoIterator<Item = Vec<u32>>,
+    {
+        let mut out = Self { matrix: s.into_iter().collect(), expand: unsafe { NonZeroUsize::new_unchecked(2) } };
+        // must be called in order!
+        unsafe {
+            out.fill_align()?;
+            out.fill_zero()?;
+        }
         Ok(out)
     }
     /// Get the number of rows in the matrix
@@ -56,24 +64,45 @@ impl BashicuMatrixSystem {
         self.set_expand_steps(steps);
         self
     }
-
-    fn check_shape(&self) -> Result<(), DayanError> {
-        let mut len = 0;
-        for column in &self.matrix {
-            let clen = column.len();
-            if len == 0 {
-                len = clen
+    /// Fill homogeneous columns based on first number
+    ///
+    /// Make sure the first column is not empty
+    unsafe fn fill_align(&mut self) -> Result<(), DayanError> {
+        match self.matrix.get(0) {
+            Some(s) if s.len() == 0 => {
+                Err(DayanError::too_less_argument("The first column of BMS cannot be empty", 0).with_min_argument(1))?
             }
-            else if len != column.len() {
-                Err(DayanError::too_less_argument("BMS", len).with_min_argument(clen as u32).with_max_argument(clen as u32))?
+            Some(s) => {
+                let len = s.len();
+                let head = s.get_unchecked(0);
+                if *head != 0 {
+                    for i in 0..*head {
+                        self.matrix.push_front(vec![i; len])
+                    }
+                }
             }
-        }
-        if len == 0 {
-            Err(DayanError::too_less_argument("BMS", 0).with_min_argument(1).with_max_argument(1))?
+            None => Err(DayanError::too_less_argument("This is an empty BMS", 0).with_min_argument(1))?,
         }
         Ok(())
     }
-
+    /// Fill zeros by first column, must call after [`BashicuMatrixSystem::fill_align`]!!!
+    unsafe fn fill_zero(&mut self) -> Result<(), DayanError> {
+        let count = self.matrix.get_unchecked(0).len();
+        for column in self.matrix.iter_mut().skip(1) {
+            if column.len() > count {
+                Err(DayanError::too_less_argument(
+                    "The remaining columns of BMS cannot exceed the length of the first column",
+                    count,
+                )
+                .with_min_argument(0)
+                .with_max_argument(count as u32))?
+            }
+            while column.len() < count {
+                column.push(0);
+            }
+        }
+        Ok(())
+    }
     /// Get the number of rows in the matrix
     pub fn expand(&self) -> Self {
         let s = &self.matrix;
