@@ -65,6 +65,7 @@ fn export_beta2() -> Result<(), DayanError> {
 }
 
 #[test]
+#[ignore]
 fn export_beta3() -> Result<(), DayanError> {
     let beta = DayanBeta::Beta(3, vec![]);
     println!("{}", beta.as_expression()?);
@@ -94,6 +95,7 @@ fn test() {
 }
 
 #[test]
+#[ignore]
 fn export_psi() -> Result<(), DayanError> {
     let here = Path::new(env!("CARGO_MANIFEST_DIR"));
     let mut file = File::create(here.join("tests").join("psi.md"))?;

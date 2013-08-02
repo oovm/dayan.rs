@@ -13,7 +13,7 @@ mod parser;
 #[derive(Clone)]
 pub struct BashicuMatrixSystem {
     // TODO: use nd array
-    matrix: VecDeque<Vec<u32>>,
+    matrix: Vec<Vec<u32>>,
     expand: NonZeroUsize,
 }
 
@@ -77,7 +77,7 @@ impl BashicuMatrixSystem {
                 let head = s.get_unchecked(0);
                 if *head != 0 {
                     for i in 0..*head {
-                        self.matrix.push_front(vec![i; len])
+                        self.matrix.insert(0, vec![i; len]);
                     }
                 }
             }

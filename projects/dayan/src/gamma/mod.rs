@@ -1,29 +1,22 @@
-use crate::{DayanError, ExpressionTree};
-use std::{
-    fmt::{Debug, Display, Formatter, Write},
-    str::FromStr,
-};
+use std::fmt::{Debug, Display};
 
-mod display;
-mod parser;
+// mod display;
+// mod parser;
 
 /// A psi expression
 #[derive(Clone)]
-pub enum DayanAlpha {
+pub enum DayanGamma {
     /// A positive integer
     Number(u32),
     /// The first transfinite ordinal `ω`
     /// `D[0](0)`
-    Psi { line1: Vec<DayanAlpha>, line2: Vec<DayanAlpha> },
+    Psi { line1: Vec<DayanGamma>, line2: Vec<DayanGamma> },
 }
 
-impl Iterator for DayanAlpha {
+impl Iterator for DayanGamma {
     type Item = ();
 
     fn next(&mut self) -> Option<Self::Item> {
-        match self {
-            DayanAlpha::Number(_) => {}
-            DayanAlpha::Psi { .. } => {}
-        }
+        todo!()
     }
 }
