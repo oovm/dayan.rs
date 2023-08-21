@@ -1,3 +1,5 @@
+mod y_sequence;
+
 use dayan::{BMSConfig, BashicuMatrixSystem, DayanAlpha, DayanBeta, DayanError};
 use std::{fs::File, io::Write, path::Path, str::FromStr};
 #[test]
