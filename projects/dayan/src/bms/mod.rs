@@ -5,6 +5,7 @@ use std::{
     fmt::{Debug, Display, Formatter, Write},
     num::NonZeroUsize,
 };
+use ndarray::Array2;
 
 mod display;
 mod parser;
@@ -204,6 +205,33 @@ impl BashicuMatrixSystem {
 
     fn ys(&self) -> usize {
         self.matrix[0].len()
+    }
+}
+
+impl BashicuMatrixSystem {
+    pub fn as_y_sequence(&self) -> Vec<u32> {
+        let term = self.xs();
+        let rank = self.ys();
+        let mut parent_matrix: Vec<Vec<u32>> = Vec::new();
+        for j in 0..rank {
+            for i in 0..term {
+                let s = (0..=i).rev().find(|&p| self.matrix[p][j] < self.matrix[i][j]).map(|p| p as u32);
+                let p = if j == 0 {
+                    parent_matrix.push(Vec::new());
+                    s.unwrap_or(0)
+                } else {
+                    s.unwrap_or(parent_matrix[i][j - 1] )
+                };
+                parent_matrix[i].push(p);
+            }
+        }
+        let mut y: Vec<u32> = vec![1; term];
+        for j in (0..rank).rev() {
+            for i in 0..term {
+                y[i] = if self.matrix[i][j] == 0 { 1 } else { y[i] + y[parent_matrix[i][j] as usize] };
+            }
+        }
+        y
     }
 }
 
