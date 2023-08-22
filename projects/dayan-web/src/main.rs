@@ -52,7 +52,7 @@ fn Header(cx: Scope) -> Element {
                     "BMS 4.0"
                 }
                 option {
-                    value: "hydra",
+                    value: "ast",
                     "ω-Hydra"
                 }
             }

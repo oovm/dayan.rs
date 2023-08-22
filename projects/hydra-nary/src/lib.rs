@@ -11,6 +11,10 @@
 // mod expression;
 // mod gamma;
 mod ast;
+mod parse;
+
+pub use crate::ast::NAryHydra;
+
 // pub(crate) mod utils;
 //
 // pub use crate::{

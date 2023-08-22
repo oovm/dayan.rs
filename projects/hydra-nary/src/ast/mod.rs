@@ -1,32 +1,47 @@
+use num_traits::Zero;
+use pex::Parse;
 use std::{
-    cmp::Ordering,
-    collections::BTreeMap,
     fmt::{Display, Formatter, Write},
     ops::{Add, Mul, Range},
     str::FromStr,
 };
-// mod arithmetic;
+mod arithmetic;
 // mod parser;
 
 mod display;
 
-/// n-ary hydra
-#[derive(Debug, Eq, PartialEq)]
+/// n-ary ast
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub enum NAryHydra {
-    /// The head of hydra, usually a natural number
+    /// The head of ast, usually a natural number
     Head {
-        /// 0 means nothing
         order: usize,
+        /// The raw text span
         range: Range<usize>,
     },
-    /// The body of hydra
+    /// The body of ast
     Body {
-        /// The ranks of the hydra
+        /// The ranks of the ast
         ranks: Vec<usize>,
-        /// The terms of the hydra
+        /// The terms of the ast
         terms: Vec<NAryHydra>,
+        /// The raw text span
         range: Range<usize>,
     },
+}
+
+impl NAryHydra {
+    /// Remove invalid nodes and simplify the representation
+    pub fn simplify(&self) -> Self {
+        match self {
+            Self::Head { order, range } => Self::Head { order: *order, range: range.clone() },
+            Self::Body { ranks, terms, range } => {
+                let ranks = ranks.iter().filter(|i| **i != 0).cloned().collect();
+                let terms = terms.iter().map(|i| i.simplify()).filter(|i| !i.is_zero()).collect();
+                Self::Body { ranks, terms, range: range.clone() }
+            }
+        }
+    }
 }
 
 // impl NAryHydra {

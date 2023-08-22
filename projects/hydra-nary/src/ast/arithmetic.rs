@@ -1,5 +1,26 @@
-// use super::*;
-//
+use super::*;
+
+impl Zero for NAryHydra {
+    fn zero() -> Self {
+        Self::Head { order: 0, range: Default::default() }
+    }
+
+    fn is_zero(&self) -> bool {
+        match self {
+            NAryHydra::Head { order, .. } => *order == 0,
+            NAryHydra::Body { terms, .. } => terms.iter().all(|t| t.is_zero()),
+        }
+    }
+}
+
+impl Add<Self> for NAryHydra {
+    type Output = Self;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        todo!()
+    }
+}
+
 // impl One for NAryHydra {
 //     fn one() -> Self {
 //         todo!()

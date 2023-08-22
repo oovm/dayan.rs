@@ -16,7 +16,7 @@ use std::{
 
 mod display;
 
-/// n-ary hydra
+/// n-ary ast
 #[derive(Debug, Eq, PartialEq)]
 pub enum NAryHydra {
     /// A positive integer

@@ -1,5 +1,6 @@
 // use dayan::{BMSConfig, BashicuMatrixSystem, DayanAlpha, DayanError, NAryHydra};
 // use hydra_nary::NAryHydra;
+use hydra_nary::NAryHydra;
 use pex::StopBecause;
 use rand::{Rng, SeedableRng};
 use std::{io::Write, str::FromStr};
@@ -25,9 +26,9 @@ fn ready() {
 
 #[test]
 fn export_beta1() -> Result<(), StopBecause> {
-    let beta = NAryHydra::Body { ranks: vec![2], terms: vec![NAryHydra::Head { order: 2 }] };
+    let beta = NAryHydra::from_str("[3, ](1, 2)")?;
     println!("{}", beta);
-    println!("{:#?}", beta);
+    println!("{:#}", beta);
     // let beta = NAryHydra::Beta(1, vec![NAryHydra::Number(1)]);
     // println!("{}", beta.as_expression()?);
     // let beta = NAryHydra::Beta(1, vec![NAryHydra::Number(1), NAryHydra::Number(1)]);
@@ -70,17 +71,3 @@ fn export_beta1() -> Result<(), StopBecause> {
 //     println!("{}", beta.as_expression()?);
 //     Ok(())
 // }
-
-#[test]
-fn test() {
-    let mut fnt = BMSConfig::default();
-    fnt.ellipsis = true;
-    let sequence = vec![vec![0, 0], vec![1, 1], vec![2, 2]];
-    let bms = BashicuMatrixSystem::new(sequence.clone()).unwrap().expand(2);
-    println!("{:?}", bms);
-    let bms = bms.expand(2);
-    println!("{}", fnt.render(&bms));
-    fnt.display = false;
-    let bms = bms.expand(2);
-    println!("{}", fnt.render(&bms));
-}
