@@ -21,20 +21,6 @@ pub fn show(input: &str) -> Result<(), DayanError> {
     Ok(())
 }
 
-pub fn markdown(input: &str, file: &mut File) -> Result<(), DayanError> {
-    writeln!(file, "| Node | Psi | Expression |")?;
-    writeln!(file, "| ---- | --- | ---------- |")?;
-    for line in input.lines() {
-        if line.trim().is_empty() {
-            continue;
-        }
-        let node = DayanAlpha::from_str(line)?;
-        let expr = node.as_expression()?;
-        writeln!(file, "| ${:?}$ | ${}$ | ${}$ |", node, node, expr)?;
-    }
-    Ok(())
-}
-
 #[test]
 fn export_beta1() -> Result<(), DayanError> {
     let beta = DayanBeta::Beta(1, vec![]);
@@ -94,12 +80,4 @@ fn test() {
     fnt.display = false;
     let bms = bms.expand();
     println!("{}", fnt.render(&bms));
-}
-
-#[test]
-#[ignore]
-fn export_psi() -> Result<(), DayanError> {
-    let here = Path::new(env!("CARGO_MANIFEST_DIR"));
-    let mut file = File::create(here.join("tests").join("psi.md"))?;
-    markdown(include_str!("psi.txt"), &mut file)
 }
