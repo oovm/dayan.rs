@@ -9,14 +9,14 @@ pub enum NAryHydra {
     /// The head of ast, usually a natural number
     Head {
         /// The order of the ast
-        order: usize,
+        order: u32,
         /// The raw text span
         range: Range<usize>,
     },
     /// The body of ast
     Body {
         /// The ranks of the ast
-        ranks: Vec<usize>,
+        ranks: Vec<u32>,
         /// The terms of the ast
         terms: Vec<NAryHydra>,
         /// The raw text span
@@ -35,6 +35,22 @@ impl NAryHydra {
                 Self::Body { ranks, terms, range: range.clone() }
             }
         }
+    }
+    /// Gives the number of Hydra's attributes
+    ///
+    /// That is, the maximum number of ranks among all nodes.
+    pub fn attributes(&self) -> usize {
+        let mut max = 0;
+        match self {
+            NAryHydra::Head { .. } => {}
+            NAryHydra::Body { ranks, terms, .. } => {
+                max = ranks.len().max(max);
+                for term in terms {
+                    max = term.attributes().max(max);
+                }
+            }
+        }
+        max
     }
 }
 

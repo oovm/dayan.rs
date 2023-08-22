@@ -1,11 +1,11 @@
 use crate::config::use_dayan;
-use dayan::BMSConfig;
+use dayan::BashicuMatrixSystemTex;
 use dioxus::prelude::*;
 use dioxus_katex::use_katex_display;
 
 pub fn BMSEditor(cx: Scope) -> Element {
     let dayan = use_dayan(cx);
-    let mut config = BMSConfig::default();
+    let mut config = BashicuMatrixSystemTex::default();
     config.ellipsis = dayan.ellipsis();
     // initial value
     let place_holder = r#"(0, 0, 0)(1, 1, 1)(2, 1, 0)"#;

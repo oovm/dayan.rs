@@ -36,7 +36,7 @@ impl Display for BashicuMatrixSystem {
 }
 
 impl Latexify for BashicuMatrixSystem {
-    type Context = BMSConfig;
+    type Context = BashicuMatrixSystemTex;
     fn fmt<W: Write>(&self, c: &Self::Context, f: &mut W) -> std::fmt::Result {
         if c.display {
             f.write_str("\\begin{bmatrix}\n")?;
@@ -81,7 +81,7 @@ impl Latexify for BashicuMatrixSystem {
     }
 }
 
-impl BMSConfig {
+impl BashicuMatrixSystemTex {
     /// Get the number of rows in the matrix
     pub fn render(&self, bms: &BashicuMatrixSystem) -> String {
         bms.to_latex(self)

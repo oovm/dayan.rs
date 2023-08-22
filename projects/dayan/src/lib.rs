@@ -12,10 +12,12 @@ mod expression;
 mod gamma;
 
 pub(crate) mod utils;
+pub use crate::traits::OrdinalNotation;
+mod traits;
 
 pub use crate::{
     alpha::DayanAlpha,
-    bms::{BMSConfig, BashicuMatrixSystem},
+    bms::{BashicuMatrixSystem, BashicuMatrixSystemTex},
     errors::{DayanError, DayanErrorKind},
     expression::ExpressionTree,
 };

@@ -21,7 +21,7 @@ use std::str::FromStr;
 #[test]
 fn export_beta1() -> Result<(), StopBecause> {
     let cfg = NAryHydraTeX::default();
-    let beta = NAryHydra::from_str("p1()")?;
+    let beta = NAryHydra::from_str("p1(2; 3 p1(2; 3 0 4) 4)")?;
     println!("{}", beta);
     println!("{:#}", beta);
     println!("{}", cfg.render(&beta));

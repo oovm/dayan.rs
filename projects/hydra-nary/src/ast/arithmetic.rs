@@ -1,4 +1,5 @@
 use super::*;
+use std::ops::ShlAssign;
 
 impl Zero for NAryHydra {
     fn zero() -> Self {
@@ -18,5 +19,16 @@ impl Add for NAryHydra {
 
     fn add(self, _: Self) -> Self::Output {
         unreachable!()
+    }
+}
+
+impl ShlAssign for NAryHydra {
+    fn shl_assign(&mut self, rhs: Self) {
+        match self {
+            NAryHydra::Head { .. } => {
+                panic!("Cannot append to a head node");
+            }
+            NAryHydra::Body { terms, .. } => terms.push(rhs),
+        }
     }
 }

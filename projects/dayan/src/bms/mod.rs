@@ -5,6 +5,7 @@ use std::{
     collections::VecDeque,
     fmt::{Debug, Display, Formatter, Write},
     num::NonZeroUsize,
+    slice::Iter,
 };
 
 mod display;
@@ -19,7 +20,7 @@ pub struct BashicuMatrixSystem {
 
 /// A configuration for the BMS
 #[derive(Copy, Clone, Debug)]
-pub struct BMSConfig {
+pub struct BashicuMatrixSystemTex {
     /// Whether to use color
     pub color: bool,
     /// Whether to display the matrix
@@ -28,7 +29,7 @@ pub struct BMSConfig {
     pub ellipsis: bool,
 }
 
-impl Default for BMSConfig {
+impl Default for BashicuMatrixSystemTex {
     fn default() -> Self {
         Self { color: false, display: false, ellipsis: false }
     }
@@ -208,6 +209,10 @@ impl BashicuMatrixSystem {
 }
 
 impl BashicuMatrixSystem {
+    pub fn terms(&self) -> Iter<'_, Vec<u32>> {
+        self.matrix.iter()
+    }
+
     /// Convert the BMS to 0-Y Sequence
     pub fn as_y_sequence(&self) -> Vec<u32> {
         let xs = self.term();

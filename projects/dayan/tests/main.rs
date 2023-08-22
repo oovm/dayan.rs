@@ -1,7 +1,6 @@
 mod y_sequence;
-use dayan::{BMSConfig, BashicuMatrixSystem, DayanAlpha, DayanError, NAryHydra};
-use rand::{Rng, SeedableRng};
-use std::{io::Write, str::FromStr};
+use dayan::{BashicuMatrixSystem, BashicuMatrixSystemTex, DayanAlpha, DayanError};
+use std::str::FromStr;
 
 mod hydra;
 
@@ -73,7 +72,7 @@ fn export_beta1() -> Result<(), DayanError> {
 
 #[test]
 fn test() {
-    let mut fnt = BMSConfig::default();
+    let mut fnt = BashicuMatrixSystemTex::default();
     fnt.ellipsis = true;
     let sequence = vec![vec![0, 0], vec![1, 1], vec![2, 2]];
     let bms = BashicuMatrixSystem::new(sequence.clone()).unwrap().expand(2);

@@ -71,7 +71,7 @@ pub fn parse_head(input: ParseState) -> ParseResult<NAryHydra> {
 /// 1,2;
 /// (n,)*;
 /// ```
-fn inner_rank(input: ParseState) -> ParseResult<Vec<usize>> {
+fn inner_rank(input: ParseState) -> ParseResult<Vec<u32>> {
     let (state, terms) = input.skip(whitespace).match_repeats(parse_number)?;
     let (state, _) = state.match_char(';')?;
     state.skip(whitespace).finish(terms)
@@ -88,13 +88,13 @@ fn function_name(input: ParseState) -> ParseResult<()> {
     state.finish(())
 }
 
-fn parse_number(input: ParseState) -> ParseResult<usize> {
+fn parse_number(input: ParseState) -> ParseResult<u32> {
     let (state, int) = parse_integer(input)?;
     let state = state.skip(whitespace).skip(|c| c.match_char(',')).skip(whitespace);
     state.finish(int)
 }
 
-fn parse_integer(input: ParseState) -> ParseResult<usize> {
+fn parse_integer(input: ParseState) -> ParseResult<u32> {
     let (state, str) = input.match_str_if(|c| c.is_ascii_digit(), "DECIMAL")?;
-    state.finish(usize::from_str(str)?)
+    state.finish(u32::from_str(str)?)
 }
