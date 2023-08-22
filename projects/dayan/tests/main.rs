@@ -1,7 +1,8 @@
 mod y_sequence;
-
 use dayan::{BMSConfig, BashicuMatrixSystem, DayanAlpha, DayanBeta, DayanError};
-use std::{fs::File, io::Write, path::Path, str::FromStr};
+use rand::{Rng, SeedableRng};
+use std::{io::Write, str::FromStr};
+
 #[test]
 fn ready() {
     println!("it works!")
@@ -73,11 +74,11 @@ fn test() {
     let mut fnt = BMSConfig::default();
     fnt.ellipsis = true;
     let sequence = vec![vec![0, 0], vec![1, 1], vec![2, 2]];
-    let bms = BashicuMatrixSystem::new(sequence.clone()).unwrap().expand();
+    let bms = BashicuMatrixSystem::new(sequence.clone()).unwrap().expand(2);
     println!("{:?}", bms);
-    let bms = bms.expand();
+    let bms = bms.expand(2);
     println!("{}", fnt.render(&bms));
     fnt.display = false;
-    let bms = bms.expand();
+    let bms = bms.expand(2);
     println!("{}", fnt.render(&bms));
 }

@@ -15,13 +15,19 @@ pub struct DayanOptions {
     bms: BashicuMatrixSystem,
 }
 
+impl Default for DayanOptions {
+    fn default() -> Self {
+        Self {
+            color: false,
+            ellipsis: false,
+            expands: 2,
+            bms: BashicuMatrixSystem::new(vec![vec![0, 0, 0], vec![1, 1, 1], vec![2, 1, 0]]).expect("BMS"),
+        }
+    }
+}
+
 pub fn use_dayan(cx: &ScopeState) -> &mut UseDayan {
-    let options = DayanOptions {
-        color: false,
-        ellipsis: false,
-        expands: 2,
-        bms: BashicuMatrixSystem::new(vec![vec![0, 0, 0], vec![1, 1, 1], vec![2, 1, 0]]).expect("BMS"),
-    };
+    let options = DayanOptions::default();
     let katex = UseDayan { dayan: Rc::new(RefCell::new(options)), updater: cx.schedule_update() };
     cx.use_hook(|| katex)
 }

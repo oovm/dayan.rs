@@ -13,7 +13,7 @@ impl Debug for BashicuMatrixSystem {
             }
             result.push(')');
         }
-        result.push_str(&format!("[{}]", self.expand));
+        // result.push_str(&format!("[{}]", self.expand));
         write!(f, "{}", result)
     }
 }
@@ -40,8 +40,8 @@ impl Latexify for BashicuMatrixSystem {
     fn fmt<W: Write>(&self, c: &Self::Context, f: &mut W) -> std::fmt::Result {
         if c.display {
             f.write_str("\\begin{bmatrix}\n")?;
-            for i in 0..self.ys() {
-                for j in 0..self.xs() {
+            for i in 0..self.rank() {
+                for j in 0..self.term() {
                     if c.color {
                         // if self.get_bad_root() == Some(i) {
                         //     f.write_str("\\color{red}")?;
@@ -51,7 +51,7 @@ impl Latexify for BashicuMatrixSystem {
                         // }
                     }
                     Latexify::fmt(&self.matrix[j][i], &(), f)?;
-                    if j != self.xs() - 1 {
+                    if j != self.term() - 1 {
                         f.write_str(" & ")?;
                     }
                     else if c.ellipsis {
@@ -85,6 +85,19 @@ impl BMSConfig {
     /// Get the number of rows in the matrix
     pub fn render(&self, bms: &BashicuMatrixSystem) -> String {
         bms.to_latex(self)
+    }
+    /// Render the y sequence as latex
+    pub fn render_y(&self, bms: &BashicuMatrixSystem) -> String {
+        let mut result = String::new();
+        result.push_str("0-Y(");
+        for c in bms.as_y_sequence().iter().enumerate() {
+            if c.0 != 0 {
+                result.push(',');
+            }
+            result.push_str(&c.1.to_string());
+        }
+        result.push(')');
+        result
     }
 }
 

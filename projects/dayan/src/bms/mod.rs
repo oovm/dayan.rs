@@ -1,11 +1,11 @@
 use crate::DayanError;
 use latexify::Latexify;
+use ndarray::Array2;
 use std::{
     collections::VecDeque,
     fmt::{Debug, Display, Formatter, Write},
     num::NonZeroUsize,
 };
-use ndarray::Array2;
 
 mod display;
 mod parser;
@@ -15,7 +15,6 @@ mod parser;
 pub struct BashicuMatrixSystem {
     // TODO: use nd array
     matrix: Vec<Vec<u32>>,
-    expand: NonZeroUsize,
 }
 
 /// A configuration for the BMS
@@ -41,7 +40,7 @@ impl BashicuMatrixSystem {
     where
         I: IntoIterator<Item = Vec<u32>>,
     {
-        let mut out = Self { matrix: s.into_iter().collect(), expand: unsafe { NonZeroUsize::new_unchecked(2) } };
+        let mut out = Self { matrix: s.into_iter().collect() };
         // must be called in order!
         unsafe {
             out.fill_align()?;
@@ -53,7 +52,7 @@ impl BashicuMatrixSystem {
     pub fn set_expand_steps(&mut self, steps: usize) -> bool {
         match NonZeroUsize::new(steps) {
             Some(s) => {
-                self.expand = s;
+                // self.expand = s;
                 true
             }
             None => false,
@@ -77,7 +76,7 @@ impl BashicuMatrixSystem {
                 let len = s.len();
                 let head = s.get_unchecked(0);
                 if *head != 0 {
-                    for i in 0..*head {
+                    for i in (0..*head).rev() {
                         self.matrix.insert(0, vec![i; len]);
                     }
                 }
@@ -105,19 +104,19 @@ impl BashicuMatrixSystem {
         Ok(())
     }
     /// Get the number of rows in the matrix
-    pub fn expand(&self) -> Self {
+    pub fn expand(&self, steps: usize) -> Self {
         let s = &self.matrix;
-        let xs = self.xs();
-        let ys = self.ys();
+        let xs = self.term();
+        let ys = self.rank();
         let s1 = self.matrix[..xs - 1].to_vec();
         let r = match self.get_bad_root() {
             Some(r) => r,
-            None => return Self { matrix: s1, expand: self.expand },
+            None => return Self { matrix: s1 },
         };
         let mut delta = diff(&s[xs - 1], &s[r]);
         let lmnz = match self.get_lowermost_nonzero(&s[xs - 1]) {
             Some(s) => s,
-            None => return Self { matrix: s1, expand: self.expand },
+            None => return Self { matrix: s1 },
         };
         for y in lmnz..ys {
             delta[y] = 0;
@@ -125,7 +124,7 @@ impl BashicuMatrixSystem {
         let a = self.get_ascension();
         let bs = xs - r - 1;
         let mut s1 = s1;
-        for i in 0..self.expand.get() {
+        for i in 0..steps {
             for x in 0..bs {
                 let mut da = vec![0; ys];
                 for y in 0..ys {
@@ -134,7 +133,7 @@ impl BashicuMatrixSystem {
                 s1.push(da);
             }
         }
-        Self { matrix: s1, expand: self.expand }
+        Self { matrix: s1 }
     }
 
     fn get_parent(&self, x: usize, y: usize) -> Option<usize> {
@@ -154,7 +153,7 @@ impl BashicuMatrixSystem {
     }
 
     fn get_bad_root(&self) -> Option<usize> {
-        let xs = self.xs();
+        let xs = self.term();
         let x = xs - 1;
         let y = self.get_lowermost_nonzero(&self.matrix[x])?;
         let p = self.get_parent(x, y)?;
@@ -162,8 +161,8 @@ impl BashicuMatrixSystem {
     }
 
     fn get_ascension(&self) -> Vec<Vec<u32>> {
-        let xs = self.xs();
-        let ys = self.ys();
+        let xs = self.term();
+        let ys = self.rank();
         let r = match self.get_bad_root() {
             Some(r) => r,
             None => return vec![],
@@ -199,35 +198,37 @@ impl BashicuMatrixSystem {
         None
     }
 
-    fn xs(&self) -> usize {
+    fn term(&self) -> usize {
         self.matrix.len()
     }
 
-    fn ys(&self) -> usize {
+    fn rank(&self) -> usize {
         self.matrix[0].len()
     }
 }
 
 impl BashicuMatrixSystem {
+    /// Convert the BMS to 0-Y Sequence
     pub fn as_y_sequence(&self) -> Vec<u32> {
-        let term = self.xs();
-        let rank = self.ys();
+        let xs = self.term();
+        let ys = self.rank();
         let mut parent_matrix: Vec<Vec<u32>> = Vec::new();
-        for j in 0..rank {
-            for i in 0..term {
+        for j in 0..ys {
+            for i in 0..xs {
                 let s = (0..=i).rev().find(|&p| self.matrix[p][j] < self.matrix[i][j]).map(|p| p as u32);
                 let p = if j == 0 {
                     parent_matrix.push(Vec::new());
                     s.unwrap_or(0)
-                } else {
-                    s.unwrap_or(parent_matrix[i][j - 1] )
+                }
+                else {
+                    s.unwrap_or(parent_matrix[i][j - 1])
                 };
                 parent_matrix[i].push(p);
             }
         }
-        let mut y: Vec<u32> = vec![1; term];
-        for j in (0..rank).rev() {
-            for i in 0..term {
+        let mut y: Vec<u32> = vec![1; xs];
+        for j in (0..ys).rev() {
+            for i in 0..xs {
                 y[i] = if self.matrix[i][j] == 0 { 1 } else { y[i] + y[parent_matrix[i][j] as usize] };
             }
         }

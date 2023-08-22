@@ -12,7 +12,7 @@ pub fn BMSEditor(cx: Scope) -> Element {
     let current_text = use_state(&cx, || place_holder.to_string());
     let mut bms = dayan.get_bms();
     bms.set_expand_steps(dayan.expands());
-    let bms = bms.expand();
+    let e_bms = bms.expand();
     let color = dayan.color_toggle();
     let ellipsis = dayan.ellipsis_toggle();
     let expand = dayan.expands_slider();
@@ -20,11 +20,13 @@ pub fn BMSEditor(cx: Scope) -> Element {
     // katex render
     let katex = use_katex_display(&cx);
     config.display = false;
-    let bms_inline = config.render(&bms);
+    let bms_inline = config.render(&e_bms);
     let math_inline = katex.compile(&bms_inline);
     config.display = true;
-    let bms_display = config.render(&bms);
+    let bms_display = config.render(&e_bms);
     let math_display = katex.compile(&bms_display);
+    let y_seq = config.render_y(&bms);
+    let y_math = katex.compile(&y_seq);
     cx.render(rsx!(
         div {
             class: "form-control flex-1",
@@ -60,6 +62,17 @@ pub fn BMSEditor(cx: Scope) -> Element {
                 "{bms_display}"
             }
             math_display
+        }
+        div {
+            class: "flex-1 ml-2 mr-2",
+            h3 {
+                "Y Sequence:"
+            }
+            pre {
+                class: "text-sm",
+                "{y_seq}"
+            }
+            y_math
         }
         div {
             class: "form-control",

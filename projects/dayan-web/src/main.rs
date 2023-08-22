@@ -4,6 +4,7 @@
 #![allow(clippy::derivable_impls)]
 
 pub use self::components::*;
+use crate::config::{DayanOptions, UseDayan};
 use dioxus::prelude::*;
 use log::LevelFilter;
 
@@ -51,8 +52,8 @@ fn Header(cx: Scope) -> Element {
                     "BMS 4.0"
                 }
                 option {
-                    value: "y",
-                    "Y Sequence"
+                    value: "hydra",
+                    "ω-Hydra"
                 }
             }
             a {
