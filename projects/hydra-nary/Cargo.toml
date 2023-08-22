@@ -1,0 +1,30 @@
+[package]
+name = "hydra-nary"
+version = "0.0.1"
+authors = ["Aster <192607617@qq.com>"]
+description = "..."
+repository = "https://github.com/oovm/sub_projects"
+documentation = "https://docs.rs/dayan"
+readme = "Readme.md"
+license = "MPL-2.0"
+edition = "2021"
+exclude = ["package.json", "tests/**"]
+
+[dependencies]
+rand = { version = "0.8.5", features = ["small_rng"] }
+num-traits = "0.2.14"
+latexify = "0.1.0"
+regex = "1.8.1"
+ndarray = "0.15.6"
+
+[dependencies.pex]
+version = "0.2.4"
+#features = ["regex"]
+
+[dev-dependencies]
+
+[features]
+default = []
+
+[package.metadata.docs.rs]
+all-features = true

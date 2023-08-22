@@ -1,5 +1,6 @@
-mod y_sequence;
-use dayan::{BMSConfig, BashicuMatrixSystem, DayanAlpha, DayanError, NAryHydra};
+// use dayan::{BMSConfig, BashicuMatrixSystem, DayanAlpha, DayanError, NAryHydra};
+// use hydra_nary::NAryHydra;
+use pex::StopBecause;
 use rand::{Rng, SeedableRng};
 use std::{io::Write, str::FromStr};
 
@@ -8,22 +9,22 @@ fn ready() {
     println!("it works!")
 }
 
-pub fn show(input: &str) -> Result<(), DayanError> {
-    for line in input.lines() {
-        if line.trim().is_empty() {
-            continue;
-        }
-        let node = DayanAlpha::from_str(line)?;
-        let expr = node.as_expression()?;
-        println!("{}:", node);
-        // println!("  {:?}", node);
-        println!("  {}", expr);
-    }
-    Ok(())
-}
+// pub fn show(input: &str) -> Result<(), DayanError> {
+//     for line in input.lines() {
+//         if line.trim().is_empty() {
+//             continue;
+//         }
+//         let node = DayanAlpha::from_str(line)?;
+//         let expr = node.as_expression()?;
+//         println!("{}:", node);
+//         // println!("  {:?}", node);
+//         println!("  {}", expr);
+//     }
+//     Ok(())
+// }
 
 #[test]
-fn export_beta1() -> Result<(), DayanError> {
+fn export_beta1() -> Result<(), StopBecause> {
     let beta = NAryHydra::Body { ranks: vec![2], terms: vec![NAryHydra::Head { order: 2 }] };
     println!("{}", beta);
     println!("{:#?}", beta);
