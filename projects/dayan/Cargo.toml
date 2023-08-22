@@ -21,6 +21,11 @@ ndarray = "0.15.6"
 version = "0.2.4"
 #features = ["regex"]
 
+[dependencies.hydra-nary]
+version = "*"
+path = "../hydra-nary"
+features = ["pex"]
+
 [dev-dependencies]
 
 [features]

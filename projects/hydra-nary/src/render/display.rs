@@ -6,19 +6,22 @@ impl Display for NAryHydra {
             Self::Head { order, .. } => f.write_fmt(format_args!("{}", order)),
             Self::Body { ranks, terms, .. } => {
                 if f.alternate() {
-                    f.write_char('(')?;
-                    if !ranks.is_empty() {
-                        write_ranks(ranks, f)?;
-                        f.write_str("; ")?;
-                    }
-                }
-                else {
                     if !ranks.is_empty() {
                         f.write_char('[')?;
                         write_ranks(ranks, f)?;
                         f.write_char(']')?;
                     }
                     f.write_char('(')?;
+                }
+                else {
+                    f.write_char('(')?;
+                    if !ranks.is_empty() {
+                        write_ranks(ranks, f)?;
+                        f.write_char(';')?;
+                        if !terms.is_empty() {
+                            f.write_char(' ')?;
+                        }
+                    }
                 }
                 write_ranks(terms, f)?;
                 f.write_char(')')

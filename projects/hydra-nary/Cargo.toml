@@ -1,25 +1,22 @@
 [package]
 name = "hydra-nary"
-version = "0.0.1"
+version = "0.0.0"
 authors = ["Aster <192607617@qq.com>"]
-description = "..."
-repository = "https://github.com/oovm/sub_projects"
-documentation = "https://docs.rs/dayan"
+description = "n-ary hydra notation for ordinal analysis"
+repository = "https://github.com/oovm/dayan.rs"
+documentation = "https://docs.rs/hydra-nary"
 readme = "Readme.md"
 license = "MPL-2.0"
 edition = "2021"
 exclude = ["package.json", "tests/**"]
 
 [dependencies]
-rand = { version = "0.8.5", features = ["small_rng"] }
 num-traits = "0.2.14"
 latexify = "0.1.0"
-regex = "1.8.1"
-ndarray = "0.15.6"
 
 [dependencies.pex]
 version = "0.2.4"
-#features = ["regex"]
+optional = true
 
 [dev-dependencies]
 

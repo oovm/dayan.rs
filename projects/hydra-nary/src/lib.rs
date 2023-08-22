@@ -4,24 +4,10 @@
 #![doc(html_logo_url = "https://raw.githubusercontent.com/oovm/shape-rs/dev/projects/images/Trapezohedron.svg")]
 #![doc(html_favicon_url = "https://raw.githubusercontent.com/oovm/shape-rs/dev/projects/images/Trapezohedron.svg")]
 
-// mod alpha;
-// mod bms;
-// mod dps;
-// mod errors;
-// mod expression;
-// mod gamma;
 mod ast;
+#[cfg(feature = "pex")]
 mod parse;
 
-pub use crate::ast::NAryHydra;
+mod render;
 
-// pub(crate) mod utils;
-//
-// pub use crate::{
-//     alpha::DayanAlpha,
-//     errors::{DayanError, DayanErrorKind},
-//     expression::ExpressionTree,
-//     ast::NAryHydra,
-// };
-//
-// pub use crate::bms::{BMSConfig, BashicuMatrixSystem};
+pub use crate::{ast::NAryHydra, render::NAryHydraTeX};

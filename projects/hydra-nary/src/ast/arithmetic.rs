@@ -13,10 +13,10 @@ impl Zero for NAryHydra {
     }
 }
 
-impl Add<Self> for NAryHydra {
+impl Add for NAryHydra {
     type Output = Self;
 
-    fn add(self, rhs: Self) -> Self::Output {
-        todo!()
+    fn add(self, _: Self) -> Self::Output {
+        unreachable!()
     }
 }

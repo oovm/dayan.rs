@@ -1,12 +1,7 @@
 use num_traits::Zero;
-use std::{
-    fmt::{Display, Formatter, Write},
-    ops::{Add, Range},
-};
+use std::ops::{Add, Range};
 mod arithmetic;
 // mod parser;
-
-mod display;
 
 /// n-ary ast
 #[derive(Clone, Debug, Eq, PartialEq)]
