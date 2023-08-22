@@ -15,7 +15,7 @@ mod parser;
 #[derive(Clone)]
 pub struct BashicuMatrixSystem {
     // TODO: use nd array
-    matrix: Vec<Vec<u32>>,
+    pub(crate) matrix: Vec<Vec<u32>>,
 }
 
 /// A configuration for the BMS

@@ -52,6 +52,33 @@ impl NAryHydra {
         }
         max
     }
+
+    /// Gives the number of Hydra's heads
+    pub fn mut_child(&mut self, depth: usize) -> &mut NAryHydra {
+        match self {
+            NAryHydra::Head { .. } => panic!("Cannot get child of a head node"),
+            NAryHydra::Body { terms, .. } => {
+                let last = terms.len() - 1;
+                &mut terms[last]
+            }
+        }
+    }
+
+    /// Gives the number of Hydra's heads
+    pub fn mut_parent(&mut self, level: usize) -> &mut NAryHydra {
+        if level == 0 {
+            self
+        }
+        else {
+            match self {
+                NAryHydra::Head { .. } => panic!("Cannot get parent of a head node"),
+                NAryHydra::Body { terms, .. } => {
+                    let last = terms.len() - 1;
+                    terms[last].mut_parent(level - 1)
+                }
+            }
+        }
+    }
 }
 
 // impl NAryHydra {
