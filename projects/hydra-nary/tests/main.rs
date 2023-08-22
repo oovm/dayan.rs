@@ -2,8 +2,7 @@
 // use hydra_nary::NAryHydra;
 use hydra_nary::NAryHydra;
 use pex::StopBecause;
-use rand::{Rng, SeedableRng};
-use std::{io::Write, str::FromStr};
+use std::str::FromStr;
 
 #[test]
 fn ready() {
@@ -26,7 +25,7 @@ fn ready() {
 
 #[test]
 fn export_beta1() -> Result<(), StopBecause> {
-    let beta = NAryHydra::from_str("[3, ](1, 2)")?;
+    let beta = NAryHydra::from_str("p1()")?;
     println!("{}", beta);
     println!("{:#}", beta);
     // let beta = NAryHydra::Beta(1, vec![NAryHydra::Number(1)]);

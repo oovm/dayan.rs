@@ -1,9 +1,7 @@
 use num_traits::Zero;
-use pex::Parse;
 use std::{
     fmt::{Display, Formatter, Write},
-    ops::{Add, Mul, Range},
-    str::FromStr,
+    ops::{Add, Range},
 };
 mod arithmetic;
 // mod parser;
@@ -15,6 +13,7 @@ mod display;
 pub enum NAryHydra {
     /// The head of ast, usually a natural number
     Head {
+        /// The order of the ast
         order: usize,
         /// The raw text span
         range: Range<usize>,
