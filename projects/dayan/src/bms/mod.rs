@@ -15,7 +15,7 @@ mod parser;
 #[derive(Clone)]
 pub struct BashicuMatrixSystem {
     // TODO: use nd array
-    pub(crate) matrix: Vec<Vec<u32>>,
+    matrix: Vec<Vec<u32>>,
 }
 
 /// A configuration for the BMS
@@ -198,19 +198,38 @@ impl BashicuMatrixSystem {
         }
         None
     }
-
-    fn term(&self) -> usize {
-        self.matrix.len()
-    }
-
-    fn rank(&self) -> usize {
-        self.matrix[0].len()
-    }
 }
 
 impl BashicuMatrixSystem {
-    pub fn terms(&self) -> Iter<'_, Vec<u32>> {
-        self.matrix.iter()
+    /// Get the number of rows in the matrix
+    pub fn term(&self) -> usize {
+        self.matrix.len()
+    }
+    /// Get the number of rows in the matrix
+    pub fn rank(&self) -> usize {
+        self.matrix[0].len()
+    }
+    /// Get the number of rows in the matrix
+    pub fn get_terms(&self) -> &[Vec<u32>] {
+        &self.matrix
+    }
+    /// Discard all preceding items with the same element
+    pub fn get_terms_unsaturated(&self) -> &[Vec<u32>] {
+        let mut start = 0;
+        for term in &self.matrix {
+            match term.first() {
+                Some(s) => {
+                    if term.iter().all(|i| i == s) {
+                        start += 1;
+                    }
+                    else {
+                        break;
+                    }
+                }
+                None => break,
+            }
+        }
+        &self.matrix[start..]
     }
 
     /// Convert the BMS to 0-Y Sequence

@@ -53,30 +53,29 @@ impl NAryHydra {
         max
     }
 
-    /// Gives the number of Hydra's heads
-    pub fn mut_child(&mut self, depth: usize) -> &mut NAryHydra {
+    /// Gives the deep head of the hydra, 0 = self terms
+    pub fn mut_child(&mut self, depth: usize) -> &mut Vec<NAryHydra> {
         match self {
-            NAryHydra::Head { .. } => panic!("Cannot get child of a head node"),
+            NAryHydra::Head { .. } => panic!("Cannot append to a head node"),
             NAryHydra::Body { terms, .. } => {
-                let last = terms.len() - 1;
-                &mut terms[last]
+                if depth == 0 {
+                    return terms;
+                }
+                // depth > 1
+                if terms.is_empty() {
+                    terms.push(NAryHydra::Body { ranks: vec![], terms: vec![], range: Default::default() });
+                }
+                unsafe {
+                    let last = terms.len() - 1;
+                    terms.get_unchecked_mut(last).mut_child(depth - 1)
+                }
             }
         }
     }
-
-    /// Gives the number of Hydra's heads
-    pub fn mut_parent(&mut self, level: usize) -> &mut NAryHydra {
-        if level == 0 {
-            self
-        }
-        else {
-            match self {
-                NAryHydra::Head { .. } => panic!("Cannot get parent of a head node"),
-                NAryHydra::Body { terms, .. } => {
-                    let last = terms.len() - 1;
-                    terms[last].mut_parent(level - 1)
-                }
-            }
+    fn mut_terms(&mut self) -> &mut Vec<NAryHydra> {
+        match self {
+            NAryHydra::Head { .. } => panic!("Cannot append to a head node"),
+            NAryHydra::Body { terms, .. } => terms,
         }
     }
 }

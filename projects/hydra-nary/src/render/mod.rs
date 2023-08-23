@@ -11,11 +11,13 @@ pub struct NAryHydraTeX {
     pub function: Option<char>,
     /// placeholder for the function name
     pub placeholder: String,
+    /// put ranks front or back
+    pub prefix: bool,
 }
 
 impl Default for NAryHydraTeX {
     fn default() -> Self {
-        Self { function: Some('p'), placeholder: "∘".to_string() }
+        Self { function: Some('p'), placeholder: "∘".to_string(), prefix: true }
     }
 }
 

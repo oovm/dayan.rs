@@ -1,6 +1,7 @@
 use crate::{BashicuMatrixSystem, BashicuMatrixSystemTex};
 use hydra_nary::NAryHydra;
 
+/// Trait for converting between different ordinal notations.
 pub trait OrdinalNotation {
     fn as_bms(&self) -> BashicuMatrixSystem;
 
@@ -13,26 +14,21 @@ impl OrdinalNotation for BashicuMatrixSystem {
     }
 
     fn as_nary_hydra(&self) -> NAryHydra {
-        let mut delta = 0;
-        let first = self.terms().nth(0).map(|v| v.len()).unwrap_or(1);
-        let mut body = NAryHydra::Body { ranks: vec![0; first - 1], terms: vec![], range: Default::default() };
-        for line in self.terms().skip(1) {
+        let first = self.term();
+        let mut body = NAryHydra::Body { ranks: vec![1; first - 1], terms: vec![], range: Default::default() };
+        for line in self.get_terms_unsaturated() {
             match line.as_slice() {
                 [depth, rest @ .., number] => {
+                    let depth = *depth;
+                    let mut ranks = vec![depth + 1];
+                    ranks.extend(rest.iter().map(|i| i + 1));
                     // let new_depth = *new_depth.first().unwrap_or(&0);
                     let new_body = NAryHydra::Body {
-                        ranks: rest.to_vec(),
+                        ranks,
                         terms: vec![NAryHydra::Head { order: *number, range: Default::default() }],
                         range: Default::default(),
                     };
-                    if *depth == delta {
-                        body <<= new_body;
-                    }
-                    else if *depth > delta {
-                        body.mut_child() <<= new_body;
-                    }
-
-                    delta = depth
+                    body.mut_child(depth as usize).push(new_body)
                 }
                 _ => {
                     unreachable!()
